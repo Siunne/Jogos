@@ -1,71 +1,110 @@
 package br.com.emilly.jogos.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Jogo {
 
-    private Long id;
-    private String codigo;
+    private final String codigo;
     private String nome;
-    private Integer unidadesDisponiveis;
+    private BigDecimal unidadesDisponiveis;
     private BigDecimal preco;
-    private LocalDate dataCadastro;
+    private final LocalDate dataCadastro;
     private Status status;
     private GeneroJogo genero;
 
     public Jogo(
-            Long id,
             String codigo,
             String nome,
-            Integer unidadesDisponiveis,
+            BigDecimal unidadesDisponiveis,
             BigDecimal preco,
-            LocalDate dataCadastro,
-            Status status,
-            GeneroJogo genero
-    ) {
+            LocalDate dataCadastro) {
 
-        if (codigo == null || codigo.isBlank()) {
-            throw new IllegalArgumentException("Código do jogo é obrigatório");
-        }
+        this.codigo = validarTextoObrigatorio(
+                codigo,
+                "Código do jogo é obrigatório");
 
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome do jogo é obrigatório");
-        }
+        this.nome = validarTextoObrigatorio(
+                nome,
+                "Nome do jogo é obrigatório");
 
-        if (unidadesDisponiveis == null || unidadesDisponiveis < 0) {
-            throw new IllegalArgumentException("Unidades disponíveis devem ser zero ou maior");
-        }
+        this.unidadesDisponiveis = validarNaoNegativo(
+                unidadesDisponiveis,
+                "Unidades disponíveis não podem ser negativas");
 
-        if (preco == null || preco.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Preço deve ser zero ou maior");
-        }
+        this.preco = validarNaoNegativo(
+                preco,
+                "Preço não pode ser negativo");
 
-        if (dataCadastro == null) {
-            throw new IllegalArgumentException("Data de cadastro é obrigatória");
-        }
+        this.dataCadastro = Objects.requireNonNull(
+                dataCadastro,
+                "Data de cadastro é obrigatória");
 
-        if (status == null) {
-            throw new IllegalArgumentException("Status é obrigatório");
-        }
-
-        if (genero == null) {
-            throw new IllegalArgumentException("Gênero do jogo é obrigatório");
-        }
-
-
-        this.id = id;
-        this.codigo = codigo;
-        this.nome = nome;
-        this.unidadesDisponiveis = unidadesDisponiveis;
-        this.preco = preco;
-        this.dataCadastro = dataCadastro;
-        this.status = status;
-        this.genero = genero;
+        this.status = Status.ATIVO;
     }
 
-    public Long getId() {
-        return id;
+    public BigDecimal calcularValorTotal() {
+        return unidadesDisponiveis
+                .multiply(preco)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void receberUnidades(BigDecimal quantidade) {
+        validarPositivo(
+                quantidade,
+                "Quantidade recebida deve ser maior que zero");
+
+        this.unidadesDisponiveis =
+                unidadesDisponiveis.add(quantidade);
+    }
+
+    public void retirarUnidades(BigDecimal quantidade) {
+        validarPositivo(
+                quantidade,
+                "Quantidade retirada deve ser maior que zero");
+
+        if (unidadesDisponiveis.compareTo(quantidade) < 0) {
+            throw new IllegalArgumentException(
+                    "Unidades disponíveis insuficientes");
+        }
+
+        this.unidadesDisponiveis =
+                unidadesDisponiveis.subtract(quantidade);
+    }
+
+    public void alterarNome(String novoNome) {
+        this.nome = validarTextoObrigatorio(
+                novoNome,
+                "Nome do jogo é obrigatório");
+    }
+
+    public void alterarPreco(BigDecimal novoPreco) {
+        this.preco = validarNaoNegativo(
+                novoPreco,
+                "Preço não pode ser negativo");
+    }
+
+    public void ativar() {
+        this.status = Status.ATIVO;
+    }
+
+    public void inativar() {
+        this.status = Status.INATIVO;
+    }
+
+    void associarAo(GeneroJogo genero) {
+        Objects.requireNonNull(
+                genero,
+                "Gênero do jogo é obrigatório");
+
+        if (this.genero != null && this.genero != genero) {
+            throw new IllegalStateException(
+                    "Jogo já pertence a outro gênero");
+        }
+
+        this.genero = genero;
     }
 
     public String getCodigo() {
@@ -76,7 +115,7 @@ public class Jogo {
         return nome;
     }
 
-    public Integer getUnidadesDisponiveis() {
+    public BigDecimal getUnidadesDisponiveis() {
         return unidadesDisponiveis;
     }
 
@@ -96,43 +135,38 @@ public class Jogo {
         return genero;
     }
 
-    public void alterarNome(String nome) {
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome do jogo é obrigatório");
+    private static String validarTextoObrigatorio(
+            String texto,
+            String mensagem) {
+
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException(mensagem);
         }
 
-        this.nome = nome;
+        return texto.trim();
     }
 
-    public void alterarPreco(BigDecimal preco) {
-        if (preco == null || preco.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Preço deve ser zero ou maior");
+    private static BigDecimal validarNaoNegativo(
+            BigDecimal valor,
+            String mensagem) {
+
+        Objects.requireNonNull(valor, mensagem);
+
+        if (valor.signum() < 0) {
+            throw new IllegalArgumentException(mensagem);
         }
 
-        this.preco = preco;
+        return valor;
     }
 
-    public void alterarUnidadesDisponiveis(Integer unidadesDisponiveis) {
-        if (unidadesDisponiveis == null || unidadesDisponiveis < 0) {
-            throw new IllegalArgumentException("Unidades disponíveis devem ser zero ou maior");
+    private static void validarPositivo(
+            BigDecimal valor,
+            String mensagem) {
+
+        Objects.requireNonNull(valor, mensagem);
+
+        if (valor.signum() <= 0) {
+            throw new IllegalArgumentException(mensagem);
         }
-
-        this.unidadesDisponiveis = unidadesDisponiveis;
-    }
-
-    public void alterarGenero(GeneroJogo genero) {
-        if (genero == null) {
-            throw new IllegalArgumentException("Gênero do jogo é obrigatório");
-        }
-
-        this.genero = genero;
-    }
-
-    public void ativar() {
-        this.status = Status.ATIVO;
-    }
-
-    public void inativar() {
-        this.status = Status.INATIVO;
     }
 }

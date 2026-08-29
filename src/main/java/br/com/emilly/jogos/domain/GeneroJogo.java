@@ -1,27 +1,47 @@
 package br.com.emilly.jogos.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class GeneroJogo {
 
-
-    private Long id;
-    private String nome;
+    private final String nome;
     private Status status;
+    private final List<Jogo> jogos = new ArrayList<>();
 
-    public GeneroJogo(Long id, String nome, Status status){
-
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome do gênero é obrigatório");
-        }
-        if (status == null) {
-            throw new IllegalArgumentException("Status é obrigatório");
-        }
-
-        this.id = id;
-        this.nome = nome;
-        this.status = status;
+    public GeneroJogo(String nome) {
+        this.nome = validarTextoObrigatorio(
+                nome,
+                "Nome do gênero é obrigatório");
+        this.status = Status.ATIVO;
     }
-    public Long getId() {
-        return id;
+
+    public void adicionarJogo(Jogo jogo) {
+        Objects.requireNonNull(jogo, "Jogo é obrigatório");
+
+        boolean codigoJaUtilizado = jogos.stream()
+                .anyMatch(item -> item != jogo
+                        && item.getCodigo().equals(jogo.getCodigo()));
+
+        if (codigoJaUtilizado) {
+            throw new IllegalArgumentException(
+                    "Código do jogo já utilizado no gênero");
+        }
+
+        jogo.associarAo(this);
+
+        if (!jogos.contains(jogo)) {
+            jogos.add(jogo);
+        }
+    }
+
+    public void ativar() {
+        this.status = Status.ATIVO;
+    }
+
+    public void inativar() {
+        this.status = Status.INATIVO;
     }
 
     public String getNome() {
@@ -32,19 +52,18 @@ public class GeneroJogo {
         return status;
     }
 
-    public void alterarNome(String nome) {
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome do gênero é obrigatório");
+    public List<Jogo> getJogos() {
+        return List.copyOf(jogos);
+    }
+
+    private static String validarTextoObrigatorio(
+            String texto,
+            String mensagem) {
+
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException(mensagem);
         }
 
-        this.nome = nome;
-    }
-
-    public void ativar() {
-        this.status = Status.ATIVO;
-    }
-
-    public void inativar() {
-        this.status = Status.INATIVO;
+        return texto.trim();
     }
 }

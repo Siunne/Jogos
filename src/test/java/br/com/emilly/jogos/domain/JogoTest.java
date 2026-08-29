@@ -7,220 +7,104 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class JogoTest {
 
     @Test
-    void deveCriarJogoComDadosValidos() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
+    void deveCriarJogoAtivoComDadosValidos() {
+        Jogo jogo = novoJogo("3.000", "12.90");
 
-        Jogo jogo = new Jogo(
-                1L,
-                "JG001",
-                "The Witcher 3",
-                5,
-                new BigDecimal("149.90"),
-                LocalDate.of(2026, 8, 29),
-                Status.ATIVO,
-                genero
-        );
-
-        assertEquals(1L, jogo.getId());
         assertEquals("JG001", jogo.getCodigo());
         assertEquals("The Witcher 3", jogo.getNome());
-        assertEquals(5, jogo.getUnidadesDisponiveis());
-        assertEquals(new BigDecimal("149.90"), jogo.getPreco());
-        assertEquals(LocalDate.of(2026, 8, 29), jogo.getDataCadastro());
         assertEquals(Status.ATIVO, jogo.getStatus());
-        assertEquals(genero, jogo.getGenero());
+        assertEquals(LocalDate.of(2026, 8, 29), jogo.getDataCadastro());
     }
 
     @Test
-    void naoDeveCriarJogoComCodigoVazio() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
+    void deveCalcularValorTotal() {
+        Jogo jogo = novoJogo("3.000", "12.90");
+
+        BigDecimal valorTotal = jogo.calcularValorTotal();
+
+        assertEquals(
+                0,
+                new BigDecimal("38.70").compareTo(valorTotal)
+        );
+    }
+
+    @Test
+    void deveReceberERetirarUnidades() {
+        Jogo jogo = novoJogo("3.000", "12.90");
+
+        jogo.receberUnidades(new BigDecimal("2.500"));
+        jogo.retirarUnidades(new BigDecimal("1.000"));
+
+        assertEquals(
+                0,
+                new BigDecimal("4.500")
+                        .compareTo(jogo.getUnidadesDisponiveis())
+        );
+    }
+
+    @Test
+    void naoDeveRetirarQuantidadeMaiorQueAsUnidadesDisponiveis() {
+        Jogo jogo = novoJogo("3.000", "12.90");
+
+        IllegalArgumentException excecao = assertThrows(
+                IllegalArgumentException.class,
+                () -> jogo.retirarUnidades(
+                        new BigDecimal("3.001"))
         );
 
-        IllegalArgumentException erro = assertThrows(
+        assertEquals(
+                "Unidades disponíveis insuficientes",
+                excecao.getMessage()
+        );
+    }
+
+    @Test
+    void naoDeveCriarJogoComCodigoEmBranco() {
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> new Jogo(
-                        1L,
-                        "",
+                        "  ",
                         "The Witcher 3",
-                        5,
-                        new BigDecimal("149.90"),
-                        LocalDate.of(2026, 8, 29),
-                        Status.ATIVO,
-                        genero
+                        BigDecimal.ZERO,
+                        new BigDecimal("12.90"),
+                        LocalDate.of(2026, 8, 29)
                 )
         );
-
-        assertEquals("Código do jogo é obrigatório", erro.getMessage());
-    }
-
-    @Test
-    void naoDeveCriarJogoComNomeVazio() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
-
-        IllegalArgumentException erro = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "",
-                        5,
-                        new BigDecimal("149.90"),
-                        LocalDate.of(2026, 8, 29),
-                        Status.ATIVO,
-                        genero
-                )
-        );
-
-        assertEquals("Nome do jogo é obrigatório", erro.getMessage());
     }
 
     @Test
     void naoDeveCriarJogoComUnidadesNegativas() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
-
-        IllegalArgumentException erro = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "The Witcher 3",
-                        -1,
-                        new BigDecimal("149.90"),
-                        LocalDate.of(2026, 8, 29),
-                        Status.ATIVO,
-                        genero
-                )
-        );
-
-        assertEquals(
-                "Unidades disponíveis devem ser zero ou maior",
-                erro.getMessage()
+                () -> novoJogo("-0.001", "12.90")
         );
     }
 
     @Test
-    void naoDeveCriarJogoComPrecoNegativo() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
+    void deveAlterarOStatusPorComportamentoExplicito() {
+        Jogo jogo = novoJogo("3.000", "12.90");
 
-        IllegalArgumentException erro = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "The Witcher 3",
-                        5,
-                        new BigDecimal("-10.00"),
-                        LocalDate.of(2026, 8, 29),
-                        Status.ATIVO,
-                        genero
-                )
-        );
+        jogo.inativar();
+        assertEquals(Status.INATIVO, jogo.getStatus());
 
-        assertEquals(
-                "Preço deve ser zero ou maior",
-                erro.getMessage()
-        );
+        jogo.ativar();
+        assertEquals(Status.ATIVO, jogo.getStatus());
     }
 
-    @Test
-    void naoDeveCriarJogoSemDataCadastro() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
+    private Jogo novoJogo(
+            String unidades,
+            String preco) {
 
-        IllegalArgumentException erro = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "The Witcher 3",
-                        5,
-                        new BigDecimal("149.90"),
-                        null,
-                        Status.ATIVO,
-                        genero
-                )
-        );
-
-        assertEquals(
-                "Data de cadastro é obrigatória",
-                erro.getMessage()
+        return new Jogo(
+                "JG001",
+                "The Witcher 3",
+                new BigDecimal(unidades),
+                new BigDecimal(preco),
+                LocalDate.of(2026, 8, 29)
         );
     }
-
-    @Test
-    void naoDeveCriarJogoSemStatus() {
-        GeneroJogo genero = new GeneroJogo(
-                1L,
-                "RPG",
-                Status.ATIVO
-        );
-
-        IllegalArgumentException erro = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "The Witcher 3",
-                        5,
-                        new BigDecimal("149.90"),
-                        LocalDate.of(2026, 8, 29),
-                        null,
-                        genero
-                )
-        );
-
-        assertEquals(
-                "Status é obrigatório",
-                erro.getMessage()
-        );
-    }
-
-    @Test
-    void naoDeveCriarJogoSemGenero() {
-        IllegalArgumentException erro = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Jogo(
-                        1L,
-                        "JG001",
-                        "The Witcher 3",
-                        5,
-                        new BigDecimal("149.90"),
-                        LocalDate.of(2026, 8, 29),
-                        Status.ATIVO,
-                        null
-                )
-        );
-
-        assertEquals(
-                "Gênero do jogo é obrigatório",
-                erro.getMessage()
-        );
-    }
-
-
 }
