@@ -1,0 +1,129 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-01-create-jogo
+      author: emilly
+      changes:
+        - createTable:
+            tableName: jogo
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_jogo
+                    nullable: false
+              - column:
+                  name: codigo
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unidades_disponiveis
+                  type: NUMERIC(18,3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preco
+                  type: NUMERIC(18,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: data_cadastro
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: genero_jogo_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropTable:
+            tableName: jogo
+
+  - changeSet:
+      id: 002-02-unique-codigo-jogo
+      author: emilly
+      changes:
+        - addUniqueConstraint:
+            tableName: jogo
+            columnNames: codigo
+            constraintName: uk_jogo_codigo
+      rollback:
+        - dropUniqueConstraint:
+            tableName: jogo
+            constraintName: uk_jogo_codigo
+
+  - changeSet:
+      id: 002-03-fk-jogo-genero
+      author: emilly
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: jogo
+            baseColumnNames: genero_jogo_id
+            referencedTableName: genero_jogo
+            referencedColumnNames: id
+            constraintName: fk_jogo_genero_jogo
+            onDelete: RESTRICT
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: jogo
+            constraintName: fk_jogo_genero_jogo
+
+  - changeSet:
+      id: 002-04-check-unidades-jogo
+      author: emilly
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              ADD CONSTRAINT ck_jogo_unidades_disponiveis
+              CHECK (unidades_disponiveis >= 0);
+      rollback:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              DROP CONSTRAINT ck_jogo_unidades_disponiveis;
+
+  - changeSet:
+      id: 002-05-check-preco-jogo
+      author: emilly
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              ADD CONSTRAINT ck_jogo_preco
+              CHECK (preco >= 0);
+      rollback:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              DROP CONSTRAINT ck_jogo_preco;
+
+  - changeSet:
+      id: 002-06-check-status-jogo
+      author: emilly
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              ADD CONSTRAINT ck_jogo_status
+              CHECK (status IN ('ATIVO', 'INATIVO'));
+      rollback:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              DROP CONSTRAINT ck_jogo_status;

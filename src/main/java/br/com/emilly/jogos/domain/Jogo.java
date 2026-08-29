@@ -1,19 +1,63 @@
 package br.com.emilly.jogos.domain;
 
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Entity
+@Table(
+        name = "jogo",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_jogo_codigo",
+                        columnNames = "codigo")
+        }
+)
 public class Jogo {
 
-    private final String codigo;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 50)
+    private String codigo;
+
+    @Column(nullable = false, length = 150)
     private String nome;
+
+    @Column(
+            name = "unidades_disponiveis",
+            nullable = false,
+            precision = 18,
+            scale = 3)
     private BigDecimal unidadesDisponiveis;
+
+    @Column(
+            nullable = false,
+            precision = 18,
+            scale = 2)
     private BigDecimal preco;
-    private final LocalDate dataCadastro;
+
+    @Column(name = "data_cadastro", nullable = false)
+    private LocalDate dataCadastro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "genero_jogo_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    name = "fk_jogo_genero_jogo"))
     private GeneroJogo genero;
+
+    protected Jogo() {
+    }
 
     public Jogo(
             String codigo,
@@ -105,6 +149,10 @@ public class Jogo {
         }
 
         this.genero = genero;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCodigo() {

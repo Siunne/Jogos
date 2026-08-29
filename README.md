@@ -15,6 +15,8 @@ Sistema para cadastrar e organizar jogos por gênero.
 
 GeneroJogo 1:N Jogo
 
+Um gênero pode possuir vários jogos e cada jogo pertence a um gênero.
+
 ## Tecnologias
 
 - Java 21
@@ -22,13 +24,48 @@ GeneroJogo 1:N Jogo
 - Maven
 - Spring Web
 - Validation
+- Spring Data JPA
+- PostgreSQL
+- Liquibase
+
+## Perfis
+
+O projeto possui configurações separadas para os ambientes:
+
+- dev
+- test
+- prod
+
+As credenciais reais do banco de dados são mantidas fora do versionamento.
+
+## Banco de dados
+
+O PostgreSQL é utilizado nos ambientes de desenvolvimento e teste.
+
+O Liquibase é responsável pela criação e evolução do esquema do banco de dados, enquanto o Hibernate valida o esquema por meio de `ddl-auto=validate`.
 
 ## Teste da aplicação
 
 Endpoint:
 
+```text
 GET /api/health
+```
 
 Resultado esperado:
 
+```text
 OK
+```
+
+Para executar os testes:
+
+```powershell
+.\mvnw.cmd test
+```
+
+## Aula 04
+
+A documentação da persistência, diagrama, restrições e evidências dos testes está disponível em:
+
+`docs/aula-04-persistencia.md`
