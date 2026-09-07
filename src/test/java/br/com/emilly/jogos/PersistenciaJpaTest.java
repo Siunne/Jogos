@@ -44,12 +44,12 @@ class PersistenciaJpaTest {
     }
 
     @Test
-    void deveTerOitoChangeSetsRegistrados() {
+    void deveTerDezesseteChangeSetsRegistrados() {
         Number quantidade = (Number) entityManager
                 .createNativeQuery("SELECT COUNT(*) FROM databasechangelog")
                 .getSingleResult();
 
-        org.junit.jupiter.api.Assertions.assertEquals(8L, quantidade.longValue());
+        org.junit.jupiter.api.Assertions.assertEquals(17L, quantidade.longValue());
     }
 
     @Test

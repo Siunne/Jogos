@@ -41,6 +41,13 @@ public class Jogo {
             scale = 2)
     private BigDecimal preco;
 
+    @Column(
+            name = "estoque_minimo",
+            nullable = false,
+            precision = 18,
+            scale = 3)
+    private BigDecimal estoqueMinimo;
+
     @Column(name = "data_cadastro", nullable = false)
     private LocalDate dataCadastro;
 
@@ -56,6 +63,13 @@ public class Jogo {
                     name = "fk_jogo_genero_jogo"))
     private GeneroJogo genero;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "fornecedor_id",
+            foreignKey = @ForeignKey(
+                    name = "fk_jogo_fornecedor"))
+    private Fornecedor fornecedor;
+
     protected Jogo() {
     }
 
@@ -64,6 +78,23 @@ public class Jogo {
             String nome,
             BigDecimal unidadesDisponiveis,
             BigDecimal preco,
+            LocalDate dataCadastro) {
+
+        this(
+                codigo,
+                nome,
+                unidadesDisponiveis,
+                preco,
+                BigDecimal.ZERO,
+                dataCadastro);
+    }
+
+    public Jogo(
+            String codigo,
+            String nome,
+            BigDecimal unidadesDisponiveis,
+            BigDecimal preco,
+            BigDecimal estoqueMinimo,
             LocalDate dataCadastro) {
 
         this.codigo = validarTextoObrigatorio(
@@ -81,6 +112,10 @@ public class Jogo {
         this.preco = validarNaoNegativo(
                 preco,
                 "Preço não pode ser negativo");
+
+        this.estoqueMinimo = validarNaoNegativo(
+                estoqueMinimo,
+                "Estoque mínimo não pode ser negativo");
 
         this.dataCadastro = Objects.requireNonNull(
                 dataCadastro,
@@ -171,6 +206,10 @@ public class Jogo {
         return preco;
     }
 
+    public BigDecimal getEstoqueMinimo() {
+        return estoqueMinimo;
+    }
+
     public LocalDate getDataCadastro() {
         return dataCadastro;
     }
@@ -181,6 +220,10 @@ public class Jogo {
 
     public GeneroJogo getGenero() {
         return genero;
+    }
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
     }
 
     private static String validarTextoObrigatorio(
