@@ -69,3 +69,22 @@ Para executar os testes:
 A documentação da persistência, diagrama, restrições e evidências dos testes está disponível em:
 
 `docs/aula-04-persistencia.md`
+
+## Aula 05
+
+Nesta aula foram implementados repositories com Spring Data JPA, serviços transacionais, consultas derivadas, tratamento de exceções, rollback e dirty checking.
+
+Foram criados:
+
+- `GeneroJogoRepository`
+- `JogoRepository`
+- `GeneroJogoService`
+- `JogoService`
+- `RecursoNaoEncontradoException`
+- `RecursoDuplicadoException`
+
+A documentação da Aula 05 está disponível em:
+
+`docs/aula-05-repositories-servicos-transacoes.md`
+
+Ao final da aula, foram executados 20 testes com sucesso.
