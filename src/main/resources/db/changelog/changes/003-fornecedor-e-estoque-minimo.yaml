@@ -32,6 +32,9 @@ databaseChangeLog:
                   type: VARCHAR(20)
                   constraints:
                     nullable: false
+      rollback:
+        - dropTable:
+            tableName: fornecedor
 
   - changeSet:
       id: 003-02
@@ -42,6 +45,11 @@ databaseChangeLog:
               ALTER TABLE fornecedor
               ADD CONSTRAINT ck_fornecedor_status
               CHECK (status IN ('ATIVO', 'INATIVO'));
+      rollback:
+        - sql:
+            sql: >
+              ALTER TABLE fornecedor
+              DROP CONSTRAINT ck_fornecedor_status;
 
   - changeSet:
       id: 003-03
@@ -50,6 +58,10 @@ databaseChangeLog:
         - addUniqueConstraint:
             tableName: fornecedor
             columnNames: cnpj
+            constraintName: uk_fornecedor_cnpj
+      rollback:
+        - dropUniqueConstraint:
+            tableName: fornecedor
             constraintName: uk_fornecedor_cnpj
 
   - changeSet:
@@ -62,6 +74,10 @@ databaseChangeLog:
               - column:
                   name: estoque_minimo
                   type: NUMERIC(18,3)
+      rollback:
+        - dropColumn:
+            tableName: jogo
+            columnName: estoque_minimo
 
   - changeSet:
       id: 003-05
@@ -74,12 +90,23 @@ databaseChangeLog:
                   name: estoque_minimo
                   valueNumeric: 0
             where: estoque_minimo IS NULL
+      rollback:
+        - sql:
+            sql: >
+              UPDATE jogo
+              SET estoque_minimo = NULL
+              WHERE estoque_minimo = 0;
 
   - changeSet:
       id: 003-06
       author: curso-spring-2026
       changes:
         - addNotNullConstraint:
+            tableName: jogo
+            columnName: estoque_minimo
+            columnDataType: NUMERIC(18,3)
+      rollback:
+        - dropNotNullConstraint:
             tableName: jogo
             columnName: estoque_minimo
             columnDataType: NUMERIC(18,3)
@@ -93,6 +120,11 @@ databaseChangeLog:
               ALTER TABLE jogo
               ADD CONSTRAINT ck_jogo_estoque_minimo_nao_negativo
               CHECK (estoque_minimo >= 0);
+      rollback:
+        - sql:
+            sql: >
+              ALTER TABLE jogo
+              DROP CONSTRAINT ck_jogo_estoque_minimo_nao_negativo;
 
   - changeSet:
       id: 003-08
@@ -104,6 +136,10 @@ databaseChangeLog:
               - column:
                   name: fornecedor_id
                   type: BIGINT
+      rollback:
+        - dropColumn:
+            tableName: jogo
+            columnName: fornecedor_id
 
   - changeSet:
       id: 003-09
@@ -117,3 +153,7 @@ databaseChangeLog:
             constraintName: fk_jogo_fornecedor
             onDelete: RESTRICT
             onUpdate: RESTRICT
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: jogo
+            constraintName: fk_jogo_fornecedor

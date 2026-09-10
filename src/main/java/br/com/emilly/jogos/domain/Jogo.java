@@ -186,6 +186,10 @@ public class Jogo {
         this.genero = genero;
     }
 
+    public void associarFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+
     public Long getId() {
         return id;
     }

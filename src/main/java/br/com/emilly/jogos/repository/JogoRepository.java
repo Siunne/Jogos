@@ -2,6 +2,7 @@ package br.com.emilly.jogos.repository;
 
 import br.com.emilly.jogos.domain.Jogo;
 import br.com.emilly.jogos.domain.Status;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,4 +17,12 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
     List<Jogo> findByGeneroId(Long generoId);
 
     List<Jogo> findByStatus(Status status);
+
+    @Override
+    @EntityGraph(attributePaths = {"genero", "fornecedor"})
+    Optional<Jogo> findById(Long id);
+
+    @Override
+    @EntityGraph(attributePaths = {"genero", "fornecedor"})
+    List<Jogo> findAll();
 }
