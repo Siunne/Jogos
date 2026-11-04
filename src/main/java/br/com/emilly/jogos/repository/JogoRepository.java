@@ -4,11 +4,21 @@ import br.com.emilly.jogos.domain.Jogo;
 import br.com.emilly.jogos.domain.Status;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface JogoRepository extends JpaRepository<Jogo, Long> {
+public interface JogoRepository extends JpaRepository<Jogo, Long>, JpaSpecificationExecutor<Jogo> {
+
+    boolean existsByGeneroId(Long generoId);
+
+    @Override
+    @EntityGraph(attributePaths = {"genero", "fornecedor"})
+    Page<Jogo> findAll(Specification<Jogo> specification, Pageable pageable);
 
     Optional<Jogo> findByCodigo(String codigo);
 

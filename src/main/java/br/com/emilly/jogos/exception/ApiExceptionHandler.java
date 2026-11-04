@@ -15,6 +15,21 @@ import java.util.Map;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    @ExceptionHandler({RecursoEmUsoException.class, org.springframework.dao.DataIntegrityViolationException.class})
+    public ResponseEntity<ApiError> tratarConflito(RuntimeException ex, HttpServletRequest request) {
+        String mensagem = ex instanceof RecursoEmUsoException ? ex.getMessage()
+                : "Operação em conflito com a integridade dos dados";
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(criarErro(HttpStatus.CONFLICT,
+                mensagem, request.getRequestURI(), Map.of()));
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ApiError> tratarRegra(RuntimeException ex, HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(criarErro(HttpStatus.BAD_REQUEST,
+                ex.getMessage(), request.getRequestURI(), Map.of()));
+    }
+
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<ApiError> tratarNaoEncontrado(
             RecursoNaoEncontradoException ex,

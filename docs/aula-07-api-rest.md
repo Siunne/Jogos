@@ -1,5 +1,32 @@
 # Aula 07 - API REST
 
+## Complemento das consultas e evolução na Aula 08
+
+Os endpoints abaixo já estavam implementados e receberam testes MockMvc de sucesso e requisições na coleção:
+
+| Método | Rota | Retorno |
+|---|---|---|
+| GET | `/api/generos` | 200, listagem paginada a partir da Aula 08 |
+| GET | `/api/generos/{id}` | 200 ou 404 |
+| GET | `/api/fornecedores` | 200, array de fornecedores |
+| GET | `/api/fornecedores/{id}` | 200 ou 404 |
+
+A partir da Aula 08, `/api/generos` e `/api/jogos` retornam um objeto com `conteudo`, `pagina`, `tamanho`, `totalElementos`, `totalPaginas`, `primeira` e `ultima`. Clientes devem ler `conteudo` em vez de consumir o corpo como array. A página começa em zero, tem tamanho padrão 20 e máximo 100. Fornecedores mantêm o array.
+
+Exemplo: `GET /api/generos?nome=RPG&status=ATIVO&page=0&size=20&sort=nome,asc`.
+
+A coleção existente foi preservada e ampliada; `baseUrl` aponta por padrão para `http://localhost:8080`. O health check agora consulta `/api/health`. Os cadastros capturam IDs em variáveis. Consulte [Aula 08](aula-08-crud-estoque-paginacao.md) para os novos contratos, exemplos e regras.
+
+### Mudança do cadastro de jogo após a auditoria da Aula 08
+
+POST `/api/jogos` deixa de receber `dataCadastro`. A data atual é definida pelo servidor e aparece somente na resposta; o cadastro continua retornando 201 com Location. Datas já gravadas são preservadas e não podem ser alteradas pelo PUT. Exemplo atualizado de entrada:
+
+```json
+{"codigo":"JOGO-001","nome":"The Witcher 3","unidadesDisponiveis":10,"preco":149.90,"estoqueMinimo":2,"generoId":2,"fornecedorId":null}
+```
+
+Os IDs são ilustrativos. A coleção utiliza os IDs reais capturados nos cadastros. Exemplos completos das respostas e erros estão na documentação da Aula 08.
+
 ## Objetivo
 
 Implementar e testar uma API REST para o sistema de jogos, utilizando Spring Boot, validações, tratamento de exceções e testes com Postman.

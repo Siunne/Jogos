@@ -3,6 +3,8 @@ package br.com.emilly.jogos;
 import br.com.emilly.jogos.domain.GeneroJogo;
 import br.com.emilly.jogos.domain.Jogo;
 import jakarta.persistence.EntityManager;
+import org.hibernate.exception.ConstraintViolationException;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,12 +46,12 @@ class PersistenciaJpaTest {
     }
 
     @Test
-    void deveTerDezesseteChangeSetsRegistrados() {
+    void deveTerDezoitoChangeSetsRegistrados() {
         Number quantidade = (Number) entityManager
                 .createNativeQuery("SELECT COUNT(*) FROM databasechangelog")
                 .getSingleResult();
 
-        org.junit.jupiter.api.Assertions.assertEquals(17L, quantidade.longValue());
+        org.junit.jupiter.api.Assertions.assertEquals(18L, quantidade.longValue());
     }
 
     @Test
@@ -81,13 +83,15 @@ class PersistenciaJpaTest {
         entityManager.persist(jogo1);
         entityManager.flush();
 
-        org.junit.jupiter.api.Assertions.assertThrows(
-                Exception.class,
+        var erro = assertThrows(
+                ConstraintViolationException.class,
                 () -> {
                     entityManager.persist(jogo2);
                     entityManager.flush();
                 }
         );
+        assertEquals("23505", erro.getSQLState());
+        assertTrue(erro.getSQLException().getMessage().contains("uk_jogo_codigo"));
     }
 
     @Test
@@ -97,14 +101,14 @@ class PersistenciaJpaTest {
         entityManager.persist(genero);
         entityManager.flush();
 
-        org.junit.jupiter.api.Assertions.assertThrows(
-                Exception.class,
+        var erro = assertThrows(
+                ConstraintViolationException.class,
                 () -> {
                     entityManager.createNativeQuery("""
                             INSERT INTO jogo
-                            (codigo, nome, unidades_disponiveis, preco, data_cadastro, status, genero_jogo_id)
+                            (codigo, nome, unidades_disponiveis, preco, estoque_minimo, data_cadastro, status, genero_jogo_id)
                             VALUES
-                            ('JOGO-NEGATIVO', 'Jogo Teste', -1.000, 50.00, CURRENT_DATE, 'ATIVO', :generoId)
+                            ('JOGO-NEGATIVO', 'Jogo Teste', -1.000, 50.00, 0, CURRENT_DATE, 'ATIVO', :generoId)
                             """)
                             .setParameter("generoId", genero.getId())
                             .executeUpdate();
@@ -112,5 +116,7 @@ class PersistenciaJpaTest {
                     entityManager.flush();
                 }
         );
+        assertEquals("23514", erro.getSQLState());
+        assertTrue(erro.getSQLException().getMessage().contains("ck_jogo_unidades_disponiveis"));
     }
 }

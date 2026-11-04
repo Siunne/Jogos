@@ -73,6 +73,11 @@ public class Jogo {
     protected Jogo() {
     }
 
+    public static Jogo novoCadastro(String codigo, String nome, BigDecimal unidadesDisponiveis,
+                                    BigDecimal preco, BigDecimal estoqueMinimo) {
+        return new Jogo(codigo, nome, unidadesDisponiveis, preco, estoqueMinimo, LocalDate.now());
+    }
+
     public Jogo(
             String codigo,
             String nome,
@@ -163,6 +168,19 @@ public class Jogo {
         this.preco = validarNaoNegativo(
                 novoPreco,
                 "Preço não pode ser negativo");
+    }
+
+    public void alterarEstoqueMinimo(BigDecimal valor) {
+        this.estoqueMinimo = validarNaoNegativo(valor, "Estoque mínimo não pode ser negativo");
+    }
+
+    public void alterarGenero(GeneroJogo novoGenero) {
+        Objects.requireNonNull(novoGenero, "Gênero é obrigatório");
+        if (this.genero == novoGenero) return;
+        novoGenero.validarInclusao(this);
+        if (this.genero != null) this.genero.removerInternamente(this);
+        this.genero = novoGenero;
+        novoGenero.adicionarInternamente(this);
     }
 
     public void ativar() {

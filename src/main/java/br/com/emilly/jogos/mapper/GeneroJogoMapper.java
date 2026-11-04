@@ -15,7 +15,8 @@ public class GeneroJogoMapper {
     public GeneroJogoResponse toResponse(GeneroJogo genero) {
         return new GeneroJogoResponse(
                 genero.getId(),
-                genero.getNome()
+                genero.getNome(),
+                genero.getStatus()
         );
     }
 }

@@ -1,15 +1,15 @@
 package br.com.emilly.jogos.controller;
 
 import br.com.emilly.jogos.application.GeneroJogoService;
-import br.com.emilly.jogos.dto.GeneroJogoRequest;
-import br.com.emilly.jogos.dto.GeneroJogoResponse;
 import br.com.emilly.jogos.mapper.GeneroJogoMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
+import br.com.emilly.jogos.dto.*;
+import br.com.emilly.jogos.domain.Status;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/generos")
@@ -49,13 +49,25 @@ public class GeneroJogoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GeneroJogoResponse>> listar() {
+    public ResponseEntity<PaginaResponse<GeneroJogoResponse>> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Status status, Pageable pageable) {
+        return ResponseEntity.ok(PaginaResponse.de(service.pesquisar(nome, status, pageable).map(mapper::toResponse)));
+    }
 
-        var response = service.listar()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+    @PutMapping("/{id}")
+    public GeneroJogoResponse alterar(@PathVariable Long id, @Valid @RequestBody GeneroJogoAtualizacaoRequest request) {
+        return mapper.toResponse(service.alterar(id, request.nome()));
+    }
 
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}/status")
+    public GeneroJogoResponse alterarStatus(@PathVariable Long id, @Valid @RequestBody StatusRequest request) {
+        return mapper.toResponse(service.alterarStatus(id, request.status()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

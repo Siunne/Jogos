@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionTemplate;
+import jakarta.persistence.EntityManager;
+import java.util.UUID;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +34,12 @@ class JogoServiceTest {
     @Autowired
     private JogoRepository jogoRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     @Test
     void deveCadastrarJogoComGenero() {
 
@@ -48,7 +58,7 @@ class JogoServiceTest {
     }
 
     @Test
-    void deveFazerRollbackQuandoGeneroNaoExiste() {
+    void naoDeveCadastrarQuandoGeneroNaoExiste() {
 
         Jogo jogo = novoJogo("TESTE-ROLLBACK");
 
@@ -76,6 +86,9 @@ class JogoServiceTest {
                 jogo.getId(),
                 new BigDecimal("5.000"));
 
+        entityManager.flush();
+        entityManager.clear();
+
         Jogo atualizado = jogoRepository
                 .findById(jogo.getId())
                 .orElseThrow();
@@ -84,6 +97,35 @@ class JogoServiceTest {
                 0,
                 new BigDecimal("15.000")
                         .compareTo(atualizado.getUnidadesDisponiveis()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void deveReverterEntradaJaEnviadaAoBancoQuandoTransacaoFalhar() {
+        String identificador = UUID.randomUUID().toString();
+        Long generoId = transactionTemplate.execute(s ->
+                generoRepository.save(new GeneroJogo("Rollback " + identificador)).getId());
+        Long jogoId = null;
+        try {
+            jogoId = jogoService.cadastrar(novoJogo(identificador), generoId).getId();
+            Long id = jogoId;
+            assertThrows(RecursoNaoEncontradoException.class, () ->
+                    transactionTemplate.executeWithoutResult(s -> {
+                        jogoService.receberUnidades(id, new BigDecimal("5.000"));
+                        entityManager.flush();
+                        entityManager.clear();
+                        assertEquals(0, new BigDecimal("15.000").compareTo(
+                                jogoRepository.findById(id).orElseThrow().getUnidadesDisponiveis()));
+                        // A falha ocorre depois de o UPDATE ter sido enviado ao PostgreSQL.
+                        jogoService.alterar(id, "Alteração recusada", BigDecimal.ONE,
+                                BigDecimal.ZERO, Long.MAX_VALUE, null);
+                    }));
+            assertEquals(0, new BigDecimal("10.000").compareTo(
+                    jogoRepository.findById(id).orElseThrow().getUnidadesDisponiveis()));
+        } finally {
+            if (jogoId != null) jogoRepository.deleteById(jogoId);
+            generoRepository.deleteById(generoId);
+        }
     }
 
     private Jogo novoJogo(String codigo) {

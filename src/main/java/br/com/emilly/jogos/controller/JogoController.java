@@ -1,15 +1,15 @@
 package br.com.emilly.jogos.controller;
 
 import br.com.emilly.jogos.application.JogoService;
-import br.com.emilly.jogos.dto.JogoRequest;
-import br.com.emilly.jogos.dto.JogoResponse;
 import br.com.emilly.jogos.mapper.JogoMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
+import br.com.emilly.jogos.dto.*;
+import br.com.emilly.jogos.domain.Status;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/jogos")
@@ -56,13 +56,40 @@ public class JogoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JogoResponse>> listar() {
+    public ResponseEntity<PaginaResponse<JogoResponse>> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Long generoId,
+            @RequestParam(required = false) Long fornecedorId,
+            @RequestParam(required = false) Boolean abaixoEstoqueMinimo, Pageable pageable) {
+        return ResponseEntity.ok(PaginaResponse.de(service.pesquisar(nome, status, generoId, fornecedorId,
+                abaixoEstoqueMinimo, pageable).map(mapper::toResponse)));
+    }
 
-        var response = service.listar()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+    @PutMapping("/{id}")
+    public JogoResponse alterar(@PathVariable Long id, @Valid @RequestBody JogoAtualizacaoRequest request) {
+        return mapper.toResponse(service.alterar(id, request.nome(), request.preco(), request.estoqueMinimo(),
+                request.generoId(), request.fornecedorId()));
+    }
 
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}/status")
+    public JogoResponse alterarStatus(@PathVariable Long id, @Valid @RequestBody StatusRequest request) {
+        return mapper.toResponse(service.alterarStatus(id, request.status()));
+    }
+
+    @PostMapping("/{id}/estoque/entradas")
+    public JogoResponse entrada(@PathVariable Long id, @Valid @RequestBody MovimentacaoEstoqueRequest request) {
+        return mapper.toResponse(service.entrada(id, request.quantidade()));
+    }
+
+    @PostMapping("/{id}/estoque/saidas")
+    public JogoResponse saida(@PathVariable Long id, @Valid @RequestBody MovimentacaoEstoqueRequest request) {
+        return mapper.toResponse(service.saida(id, request.quantidade()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

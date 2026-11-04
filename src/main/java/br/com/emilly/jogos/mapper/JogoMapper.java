@@ -9,13 +9,12 @@ import org.springframework.stereotype.Component;
 public class JogoMapper {
 
     public Jogo toEntity(JogoRequest request) {
-        return new Jogo(
+        return Jogo.novoCadastro(
                 request.codigo(),
                 request.nome(),
                 request.unidadesDisponiveis(),
                 request.preco(),
-                request.estoqueMinimo(),
-                request.dataCadastro()
+                request.estoqueMinimo()
         );
     }
 
@@ -33,7 +32,10 @@ public class JogoMapper {
                         : null,
                 jogo.getFornecedor() != null
                         ? jogo.getFornecedor().getRazaoSocial()
-                        : null
+                        : null,
+                jogo.getUnidadesDisponiveis(),
+                jogo.getDataCadastro(),
+                jogo.getStatus()
         );
     }
 }

@@ -37,6 +37,12 @@ public class GeneroJogo {
     public void adicionarJogo(Jogo jogo) {
         Objects.requireNonNull(jogo, "Jogo é obrigatório");
 
+        validarInclusao(jogo);
+        jogo.associarAo(this);
+        adicionarInternamente(jogo);
+    }
+
+    void validarInclusao(Jogo jogo) {
         boolean codigoJaUtilizado = jogos.stream()
                 .anyMatch(item -> item != jogo
                         && item.getCodigo().equals(jogo.getCodigo()));
@@ -46,8 +52,9 @@ public class GeneroJogo {
                     "Código do jogo já utilizado no gênero");
         }
 
-        jogo.associarAo(this);
+    }
 
+    void adicionarInternamente(Jogo jogo) {
         if (!jogos.contains(jogo)) {
             jogos.add(jogo);
         }
@@ -55,6 +62,14 @@ public class GeneroJogo {
 
     public void ativar() {
         this.status = Status.ATIVO;
+    }
+
+    void removerInternamente(Jogo jogo) {
+        jogos.remove(jogo);
+    }
+
+    public void alterarNome(String nome) {
+        this.nome = validarTextoObrigatorio(nome, "Nome do gênero é obrigatório e deve ter até 120 caracteres");
     }
 
     public void inativar() {
@@ -81,7 +96,7 @@ public class GeneroJogo {
             String texto,
             String mensagem) {
 
-        if (texto == null || texto.isBlank()) {
+        if (texto == null || texto.isBlank() || texto.trim().length() > 120) {
             throw new IllegalArgumentException(mensagem);
         }
 

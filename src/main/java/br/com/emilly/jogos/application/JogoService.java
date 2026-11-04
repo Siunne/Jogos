@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import br.com.emilly.jogos.domain.Status;
+import br.com.emilly.jogos.repository.specification.Filtros;
+import org.springframework.data.domain.*;
+import java.util.Set;
 
 @Service
 public class JogoService {
@@ -75,6 +79,59 @@ public class JogoService {
     @Transactional(readOnly = true)
     public List<Jogo> listar() {
         return jogoRepository.findAll();
+    }
+
+    @Transactional
+    public Jogo alterar(Long id, String nome, BigDecimal preco, BigDecimal estoqueMinimo,
+                        Long generoId, Long fornecedorId) {
+        var jogo = buscarPorId(id);
+        var genero = generoRepository.findById(generoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Gênero de jogo não encontrado"));
+        var fornecedor = fornecedorId == null ? null : fornecedorRepository.findById(fornecedorId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado"));
+        jogo.alterarNome(nome);
+        jogo.alterarPreco(preco);
+        jogo.alterarEstoqueMinimo(estoqueMinimo);
+        jogo.alterarGenero(genero);
+        jogo.associarFornecedor(fornecedor);
+        return jogo;
+    }
+
+    @Transactional
+    public Jogo alterarStatus(Long id, Status status) {
+        var jogo = buscarPorId(id);
+        if (status == Status.ATIVO) jogo.ativar(); else jogo.inativar();
+        return jogo;
+    }
+
+    @Transactional
+    public Jogo entrada(Long id, BigDecimal quantidade) {
+        var jogo = buscarPorId(id);
+        jogo.receberUnidades(quantidade);
+        return jogo;
+    }
+
+    @Transactional
+    public Jogo saida(Long id, BigDecimal quantidade) {
+        var jogo = buscarPorId(id);
+        jogo.retirarUnidades(quantidade);
+        return jogo;
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        var jogo = buscarPorId(id);
+        jogoRepository.delete(jogo);
+        jogoRepository.flush();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Jogo> pesquisar(String nome, Status status, Long generoId, Long fornecedorId,
+                               Boolean abaixoEstoqueMinimo, Pageable pageable) {
+        Paginacao.validar(pageable, Set.of("id", "nome", "codigo", "preco", "estoqueMinimo",
+                "unidadesDisponiveis", "dataCadastro", "status"));
+        return jogoRepository.findAll(Filtros.jogos(nome, status, generoId, fornecedorId,
+                abaixoEstoqueMinimo), pageable);
     }
 
     @Transactional

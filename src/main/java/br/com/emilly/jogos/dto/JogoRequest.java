@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public record JogoRequest(
 
@@ -26,9 +25,6 @@ public record JogoRequest(
         @NotNull(message = "O estoque mínimo é obrigatório")
         @PositiveOrZero(message = "O estoque mínimo não pode ser negativo")
         BigDecimal estoqueMinimo,
-
-        @NotNull(message = "A data de cadastro é obrigatória")
-        LocalDate dataCadastro,
 
         @NotNull(message = "O gênero é obrigatório")
         Long generoId,

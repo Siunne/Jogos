@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-01-unique-nome-normalizado-genero-jogo
+      author: emilly
+      preConditions:
+        - onFail: HALT
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: >
+              SELECT COUNT(*) FROM
+              (SELECT LOWER(BTRIM(nome)) FROM genero_jogo
+               GROUP BY LOWER(BTRIM(nome)) HAVING COUNT(*) > 1) duplicados
+      changes:
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_genero_jogo_nome_lower ON genero_jogo (LOWER(BTRIM(nome)))
+      rollback:
+        - sql:
+            sql: DROP INDEX uk_genero_jogo_nome_lower
