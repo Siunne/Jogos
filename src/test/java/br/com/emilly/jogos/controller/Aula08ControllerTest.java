@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 
 // Sem @Transactional: as respostas são mapeadas após o encerramento das transações dos services.
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

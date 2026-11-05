@@ -13,6 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -29,9 +30,9 @@ class OpenApiConcorrenciaTest {
                     .andReturn()
                     .getResponse()
                     .getContentAsString());
-    assertEquals(24, doc.path("paths").size());
-    assertEquals(30, doc.at("/components/schemas").size());
-    assertEquals(8, doc.path("tags").size());
+    assertEquals(27, doc.path("paths").size());
+    assertEquals(34, doc.at("/components/schemas").size());
+    assertEquals(9, doc.path("tags").size());
     for (String path :
         List.of(
             "/api/vendas/{id}/finalizacao",

@@ -1,0 +1,871 @@
+{
+  "instante": "2026-11-05T22:00:08.999Z",
+  "banco": "jogos_test",
+  "baseline": {
+    "maven": 198,
+    "node": 14,
+    "newmanRequests": 81,
+    "newmanAssertions": 135
+  },
+  "maven": {
+    "tests": 254,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiAutenticacaoTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiComercialTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiConcorrenciaTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiDocumentationTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiProfilesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiUnicodeEquivalenceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.ConcorrenciaEstoqueTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.JogoServiceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.VendaServiceTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.config.PersistencePrivacyFilterTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.config.PersistencePrivacyIntegrationTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.Aula08ControllerTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.Aula10ControllerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.ConsultasAula07Test",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.GeneroJogoControllerTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.TextoNormalizadoHttpTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.Aula08DomainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.DocumentoFiscalTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.GeneroJogoTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.JogoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.PessoaTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.TextoNormalizadoTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.VendaTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.JogosApplicationTests",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.MigracaoComercialTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.MigracaoContaAcessoTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.MigracaoGeneroTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.PersistenciaJpaTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.security.ContaAcessoSecurityTest",
+      "tests": 39,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.security.PoliticaSenhaTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.UnicidadeGeneroTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "node": {
+    "tests": 19,
+    "pass": 19,
+    "fail": 0
+  },
+  "newman": {
+    "requests": 94,
+    "assertions": 239,
+    "failures": 0,
+    "report": "sanitizado antes da gravação; somente dados fictícios"
+  },
+  "httpNewman": [
+    {
+      "item": "12-00 Health e bootstrap",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "12-01 Criar pessoa inicial",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "12-02 Criar conta OPERADOR",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "12-03 Consultar própria conta",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "00 - Health",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "01 - Criar gênero",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "02 - Criar fornecedor",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "03 - Criar jogo",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "04 - Buscar jogo por ID",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "05 - Listar jogos",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "06 - Jogo inválido - 400",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "07 - Jogo inexistente - 404",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "item": "08 - Gênero duplicado - 409",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "item": "09 - JSON malformado - 400",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "10 - Listar gêneros",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "11 - Consultar gênero",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "12 - Listar fornecedores",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "13 - Consultar fornecedor",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "14 - Alterar gênero",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "15 - Inativar gênero",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "16 - Alterar jogo",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "17 - Remover fornecedor do jogo",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "18 - Restaurar fornecedor do jogo",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "19 - Alterar status do jogo",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "20 - Entrada de estoque",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "21 - Saída de estoque",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "22 - Saída maior que saldo",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "23 - Conferir saldo após recusa",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "24 - Pesquisar jogos com filtros",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "25 - Paginação e ordenação",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "26 - Ordenação inválida",
+      "method": "GET",
+      "status": 400
+    },
+    {
+      "item": "27 - Tentar excluir gênero em uso",
+      "method": "DELETE",
+      "status": 409
+    },
+    {
+      "item": "28 - Excluir jogo",
+      "method": "DELETE",
+      "status": 204
+    },
+    {
+      "item": "29 - Excluir gênero",
+      "method": "DELETE",
+      "status": 204
+    },
+    {
+      "item": "01 - Cadastrar pessoa",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "02 - Consultar pessoa",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "03 - CPF inválido",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "04 - CNPJ inválido",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "05 - CPF duplicado",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "item": "06 - Email duplicado normalizado",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "item": "07 - Alterar pessoa",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "08 - Pesquisar pessoas",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "09 - Criar cliente",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "10 - Criar colaborador na mesma pessoa",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "11 - Papel de cliente duplicado",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "item": "12 - Consultar cliente",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "13 - Consultar colaborador",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "14 - Pesquisar clientes",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "15 - Pesquisar colaboradores",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "16 - Atualizar cliente",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "17 - Atualizar colaborador",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "18 - Cadastrar gênero da venda",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "19 - Cadastrar fornecedor válido",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "20 - Jogo A preço100 saldo10",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "21 - Jogo B preço50 saldo10",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "22 - Abrir venda",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "23 - Adicionar duas unidades A",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "24 - Remover item",
+      "method": "DELETE",
+      "status": 204
+    },
+    {
+      "item": "25 - Reincluir A",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "26 - Adicionar três unidades B",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "27 - Saldo A antes finalizar",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "28 - Alterar preço atual para120",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "29 - Consultar snapshot histórico",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "30 - Finalizar venda",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "31 - Conferir saldo final A8",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "32 - Conferir saldo final B7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "33 - Bloquear remoção após finalização",
+      "method": "DELETE",
+      "status": 400
+    },
+    {
+      "item": "34 - Bloquear segunda finalização",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "35 - Bloquear exclusão de jogo vendido",
+      "method": "DELETE",
+      "status": 409
+    },
+    {
+      "item": "36 - Pesquisar resumo de vendas",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "37 - Abrir venda vazia",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "38 - Rejeitar finalização vazia",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "39 - Cancelar venda aberta",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "40 - Inativar pessoa após venda",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "41 - Consultar histórico preservado",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "42 - Impedir venda com pessoa inativa",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "43 - Reativar pessoa",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "44 - Abrir venda para rollback",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "item": "45 - Rollback incluir A suficiente",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "46 - Rollback incluir B insuficiente",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "47 - Rollback finalização falha",
+      "method": "POST",
+      "status": 400
+    },
+    {
+      "item": "48 - Rollback saldo A preservado8",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "49 - Rollback saldo B preservado7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "50 - Rollback venda continua aberta",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "51 - Cancelar venda após rollback",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "item": "12-04 Jogo anônimo rejeitado",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "item": "12-05 Senha incorreta rejeitada",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "item": "12-06 Login inexistente rejeitado",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "item": "12-07 Login duplicado rejeitado",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "item": "12-08 Trocar senha",
+      "method": "PUT",
+      "status": 204
+    },
+    {
+      "item": "12-09 Senha antiga não autentica",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "item": "12-10 Nova senha autentica",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "item": "12-11 Inativar pessoa bootstrap",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "item": "12-12 Pessoa inativa não autentica",
+      "method": "GET",
+      "status": 401
+    }
+  ],
+  "openapi": {
+    "operacoes": 41,
+    "caminhos": 27,
+    "schemas": 34,
+    "tags": 9,
+    "basicAuth": "basic"
+  },
+  "liquibase": {
+    "anteriores": 42,
+    "novos": 7,
+    "total": 49,
+    "schemasIsoladosLimpoIncrementalRollback": true
+  },
+  "preservados": [
+    "docs/aula-09-auditoria.md",
+    "docs/aula-09-diagnostico.md",
+    "docs/aula-09-evidencias.md",
+    "docs/aula-09-openapi.md",
+    "docs/aula-09-openapi.yaml",
+    "docs/aula-10-arquivos.md",
+    "docs/aula-10-auditoria.md",
+    "docs/aula-10-checklist.md",
+    "docs/aula-10-correcoes-auditoria.md",
+    "docs/aula-10-evidencias-http.json",
+    "docs/aula-10-evidencias.md",
+    "docs/aula-10-openapi-unicode.md",
+    "docs/aula-10-openapi.yaml",
+    "docs/aula-10-pessoas-vendas.md",
+    "docs/aula-10-validacao-textos.md",
+    "docs/aula-11-arquivos.md",
+    "docs/aula-11-auditoria.md",
+    "docs/aula-11-concorrencia.md",
+    "docs/aula-11-evidencias.md",
+    "docs/aula-11-openapi.yaml",
+    "docs/aula-11-resultados.json",
+    "postman/Jogos-Aula10.postman_collection.json",
+    "src/main/java/br/com/emilly/jogos/application/JogoService.java",
+    "src/main/java/br/com/emilly/jogos/application/VendaService.java",
+    "src/main/resources/db/changelog/changes/001-create-genero-jogo.yaml",
+    "src/main/resources/db/changelog/changes/002-create-jogo.yaml",
+    "src/main/resources/db/changelog/changes/003-fornecedor-e-estoque-minimo.yaml",
+    "src/main/resources/db/changelog/changes/004-unique-nome-genero-jogo.yaml",
+    "src/main/resources/db/changelog/changes/005-pessoas-clientes-vendas.yaml"
+  ],
+  "swagger": {
+    "instante": "2026-11-05T19:30:30.488Z",
+    "operacoes": 41,
+    "basicAutorizadoUI": 200,
+    "aposLogoutHTTP": 401,
+    "aposLogoutVisual": "NÃO VERIFICADO: a automação não comprovou resposta401 renderizada após logout",
+    "captura": "docs/evidencias/aula-12-swagger-autenticado.png",
+    "credenciais": "Trecho curl com Authorization ocultado por CSS antes da captura",
+    "interacao": "AuthActions do Swagger UI, Try it out/Execute reais; não preenchimento manual do diálogo"
+  },
+  "auditoria": {
+    "total": 135,
+    "atendidos": 133,
+    "parciais": 0,
+    "naoAtendidos": 0,
+    "naoVerificados": 2
+  },
+  "arquivos": {
+    "modificados": 18,
+    "novos": 38,
+    "total": 56
+  },
+  "correcaoNul": {
+    "antes": {
+      "cadastro": 201,
+      "basicNul12": 200,
+      "basicNul13": 200,
+      "basicNul20": 200,
+      "controleSenhaAsciiDiferente": 401,
+      "alteracaoComBasicNul20ESenhaAtualNul13": 204,
+      "nul12AposTroca": 401,
+      "novaAposTroca": 200
+    },
+    "depois": {
+      "instante": "2026-11-05T21:55:43.582Z",
+      "banco": "jogos_test",
+      "requests": 16,
+      "resultados": [
+        {
+          "cenario": "Pessoa fictícia",
+          "http": 201
+        },
+        {
+          "cenario": "cadastro NUL12",
+          "http": 400
+        },
+        {
+          "cenario": "cadastro NUL13",
+          "http": 400
+        },
+        {
+          "cenario": "cadastro NUL20",
+          "http": 400
+        },
+        {
+          "cenario": "cadastro válido após rejeições",
+          "http": 201
+        },
+        {
+          "cenario": "Basic NUL12",
+          "http": 401
+        },
+        {
+          "cenario": "Basic NUL13",
+          "http": 401
+        },
+        {
+          "cenario": "Basic NUL20",
+          "http": 401
+        },
+        {
+          "cenario": "nova senha com NUL",
+          "http": 400
+        },
+        {
+          "cenario": "senha atual com NUL",
+          "http": 400
+        },
+        {
+          "cenario": "troca com Basic NUL",
+          "http": 401
+        },
+        {
+          "cenario": "senha anterior preservada após rejeições",
+          "http": 200
+        },
+        {
+          "cenario": "troca válida Unicode",
+          "http": 204
+        },
+        {
+          "cenario": "antiga após troca válida",
+          "http": 401
+        },
+        {
+          "cenario": "Unicode nova correta",
+          "http": 200
+        },
+        {
+          "cenario": "Unicode diferente rejeitada",
+          "http": 401
+        }
+      ]
+    },
+    "migracoes001a006EMasterPreservados": true,
+    "contratosHistoricosPreservados": true,
+    "transacoesIndependentes": "REQUIRES_NEW, consultas JDBC após cada rejeição",
+    "investigacao": "equivalência confirmada no encoder bruto para NUL e texto periódico com NUL; ambos proibidos pela política; cinco pares Unicode sem NUL não equivalentes"
+  }
+}

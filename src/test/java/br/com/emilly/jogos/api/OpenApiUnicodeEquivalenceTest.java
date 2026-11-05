@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

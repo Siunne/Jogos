@@ -51,7 +51,7 @@ class PersistenciaJpaTest {
         (Number)
             entityManager
                 .createNativeQuery(
-                    "SELECT COUNT(*) FROM databasechangelog WHERE id NOT LIKE '005-%'")
+                    "SELECT COUNT(*) FROM databasechangelog WHERE id NOT LIKE '005-%' AND id NOT LIKE '006-%'")
                 .getSingleResult();
 
     org.junit.jupiter.api.Assertions.assertEquals(18L, quantidade.longValue());

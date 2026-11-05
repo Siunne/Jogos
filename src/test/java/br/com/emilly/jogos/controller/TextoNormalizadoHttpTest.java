@@ -25,6 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * Requisições reais MockMvc; casos negativos sem transação externa, leitura posterior independente.
  */
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

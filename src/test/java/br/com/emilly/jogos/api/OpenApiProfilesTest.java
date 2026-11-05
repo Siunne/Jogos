@@ -21,7 +21,8 @@ class OpenApiProfilesTest {
     @Configuration(proxyBeanMethods = false)
     @EnableAutoConfiguration(excludeName = {
             "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
-            "org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration"
+            "org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration",
+            "org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration"
     })
     @Import({OpenApiConfig.class, HealthController.class})
     static class DocumentacaoSemBanco {}

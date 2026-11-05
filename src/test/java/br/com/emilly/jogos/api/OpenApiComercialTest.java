@@ -17,6 +17,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -220,13 +221,13 @@ class OpenApiComercialTest {
   @Test
   void contratoAtualEquivaleAoYamlEHistoricoAula09PermaneceIdentificavel() throws Exception {
     var d = doc();
-    var atual = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-11-openapi.yaml")));
+    var atual = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-12-openapi.yaml")));
     for (String field : List.of("info", "paths", "components", "tags", "externalDocs", "openapi"))
       assertEquals(d.path(field), atual.path(field), field);
     var antigo = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-09-openapi.yaml")));
     assertFalse(antigo.path("paths").has("/api/pessoas"));
     assertEquals(11, antigo.path("paths").size());
-    assertEquals(24, d.path("paths").size());
+    assertEquals(27, d.path("paths").size());
     assertEquals(
         "0.001",
         d.at("/components/schemas/ItemVendaRequest/properties/quantidade/multipleOf").asText());

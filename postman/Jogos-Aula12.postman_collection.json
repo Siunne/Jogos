@@ -1,0 +1,3014 @@
+{
+  "info": {
+    "name": "Jogos - Aulas 07 a 12 - HTTP Basic",
+    "description": "Somente jogos_test. Bootstrap público provisório gera credenciais fictícias por execução. HTTP Basic em todas as rotas protegidas. Não exportar credenciais reais.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58120983"
+  },
+  "item": [
+    {
+      "name": "Aula 12 - Bootstrap seguro de testes",
+      "item": [
+        {
+          "name": "12-00 Health e bootstrap",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-01 Criar pessoa inicial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pessoas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pessoas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa bootstrap fictícia\",\"email\":\"{{a12Email}}\",\"cpf\":\"{{a12Cpf}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('a12PessoaId',pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-02 Criar conta OPERADOR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pessoaId\":{{a12PessoaId}},\"login\":\"{{authLogin}}\",\"senha\":\"{{authPassword}}\",\"perfis\":[\"ADMINISTRADOR\"],\"status\":\"BLOQUEADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const b=pm.response.json();pm.test('somente OPERADOR, ATIVA e sem segredos',()=>{pm.expect(b.perfis).to.eql(['OPERADOR']);pm.expect(b.status).to.eql('ATIVA');pm.expect(b).not.to.have.property('senha');pm.expect(b).not.to.have.property('senhaHash');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-03 Consultar própria conta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('identidade correta',()=>pm.expect(pm.response.json().login).to.eql(pm.collectionVariables.get('authLogin')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Aulas 07, 08 e 09 — preservadas",
+      "item": [
+        {
+          "name": "00 - Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health",
+            "description": "Health check local."
+          },
+          "response": []
+        },
+        {
+          "name": "01 - Criar gênero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst json = pm.response.json();\npm.collectionVariables.set(\"generoId\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"{{generoNome}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "generos"
+              ]
+            },
+            "description": "Cadastra o gênero e captura generoId."
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Criar fornecedor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst json = pm.response.json();\r\npm.collectionVariables.set(\"fornecedorId\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"razaoSocial\":\"Distribuidora {{execucao}}\",\"cnpj\":\"{{cnpjTeste}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fornecedores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Criar jogo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst json = pm.response.json();\r\npm.collectionVariables.set(\"jogoId\", json.id);",
+                  "pm.collectionVariables.set(\"dataCadastroJogo\", pm.response.json().dataCadastro);",
+                  "pm.test(\"Server generated date\", () => { const now = new Date(); const today = [now.getFullYear(), String(now.getMonth()+1).padStart(2,\"0\"), String(now.getDate()).padStart(2,\"0\")].join(\"-\"); pm.expect(pm.response.json().dataCadastro).to.eql(today); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"codigo\":\"JOGO-{{execucao}}\",\"nome\":\"The Witcher 3\",\"unidadesDisponiveis\":10,\"preco\":149.90,\"estoqueMinimo\":2,\"generoId\":{{generoId}},\"fornecedorId\":{{fornecedorId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jogos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Buscar jogo por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{jogoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jogos",
+                "{{jogoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Listar jogos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});",
+                  "pm.test(\"Contrato de página\", () => { const p = pm.response.json(); pm.expect(p.conteudo).to.be.an(\"array\"); pm.expect(p.tamanho).to.eql(20); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jogos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 - Jogo inválido - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"codigo\": \"\",\r\n  \"nome\": \"\",\r\n  \"unidadesDisponiveis\": -1,\r\n  \"preco\": -10,\r\n  \"estoqueMinimo\": -1,\r\n  \"generoId\": {{generoId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jogos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 - Jogo inexistente - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/9223372036854775807"
+          },
+          "response": []
+        },
+        {
+          "name": "08 - Gênero duplicado - 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"{{generoNome}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "generos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09 - JSON malformado - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"Ação\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "generos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/generos",
+            "header": []
+          },
+          "name": "10 - Listar gêneros",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Página\", () => pm.expect(pm.response.json().conteudo).to.be.an(\"array\"));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/generos/{{generoId}}",
+            "header": []
+          },
+          "name": "11 - Consultar gênero",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fornecedores",
+            "header": []
+          },
+          "name": "12 - Listar fornecedores",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fornecedores/{{fornecedorId}}",
+            "header": []
+          },
+          "name": "13 - Consultar fornecedor",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"nome\":\"Aventura {{execucao}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/generos/{{generoId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "14 - Alterar gênero",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"status\":\"INATIVO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/generos/{{generoId}}/status",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "15 - Inativar gênero",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"nome\":\"The Witcher 3 atualizado\",\"preco\":129.90,\"estoqueMinimo\":20,\"generoId\":{{generoId}},\"fornecedorId\":{{fornecedorId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "16 - Alterar jogo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test(\"Creation date preserved\", () => pm.expect(pm.response.json().dataCadastro).to.eql(pm.collectionVariables.get(\"dataCadastroJogo\")));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"nome\":\"The Witcher 3 atualizado\",\"preco\":129.90,\"estoqueMinimo\":20,\"generoId\":{{generoId}},\"fornecedorId\":null}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "17 - Remover fornecedor do jogo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test(\"Creation date preserved\", () => pm.expect(pm.response.json().dataCadastro).to.eql(pm.collectionVariables.get(\"dataCadastroJogo\")));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"nome\":\"The Witcher 3 atualizado\",\"preco\":129.90,\"estoqueMinimo\":20,\"generoId\":{{generoId}},\"fornecedorId\":{{fornecedorId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "18 - Restaurar fornecedor do jogo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test(\"Creation date preserved\", () => pm.expect(pm.response.json().dataCadastro).to.eql(pm.collectionVariables.get(\"dataCadastroJogo\")));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"status\":\"INATIVO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}/status",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "19 - Alterar status do jogo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"quantidade\":5}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}/estoque/entradas",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "20 - Entrada de estoque",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Saldo 15\", () => pm.expect(pm.response.json().unidadesDisponiveis).to.eql(15));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"quantidade\":2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}/estoque/saidas",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "21 - Saída de estoque",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Saldo 13\", () => pm.expect(pm.response.json().unidadesDisponiveis).to.eql(13));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\"quantidade\":999}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}/estoque/saidas",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "22 - Saída maior que saldo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}",
+            "header": []
+          },
+          "name": "23 - Conferir saldo após recusa",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Saldo preservado\", () => pm.expect(pm.response.json().unidadesDisponiveis).to.eql(13));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/jogos?nome=Witcher&status=INATIVO&generoId={{generoId}}&fornecedorId={{fornecedorId}}&abaixoEstoqueMinimo=true",
+            "header": []
+          },
+          "name": "24 - Pesquisar jogos com filtros",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Filtro combinado\", () => pm.expect(pm.response.json().totalElementos).to.eql(1));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/jogos?page=0&size=1&sort=nome,asc&generoId={{generoId}}",
+            "header": []
+          },
+          "name": "25 - Paginação e ordenação",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Metadados\", () => { const p = pm.response.json(); pm.expect(p.pagina).to.eql(0); pm.expect(p.tamanho).to.eql(1); pm.expect(p).to.have.all.keys(\"conteudo\", \"pagina\", \"tamanho\", \"totalElementos\", \"totalPaginas\", \"primeira\", \"ultima\"); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/jogos?sort=inexistente,asc",
+            "header": []
+          },
+          "name": "26 - Ordenação inválida",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/generos/{{generoId}}",
+            "header": []
+          },
+          "name": "27 - Tentar excluir gênero em uso",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  ""
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/jogos/{{jogoId}}",
+            "header": []
+          },
+          "name": "28 - Excluir jogo",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "",
+                  "pm.test(\"204 has no body\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        },
+        {
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/generos/{{generoId}}",
+            "header": []
+          },
+          "name": "29 - Excluir gênero",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "",
+                  "pm.test(\"204 has no body\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Aula 10 — pessoas, papéis e vendas",
+      "item": [
+        {
+          "name": "01 - Cadastrar pessoa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa Jogos {{execucao}}\",\"email\":\"a10-{{execucao}}@example.com\",\"cpf\":\"{{a10cpf}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10pessoa\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/pessoas\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));",
+                  "pm.test(\"Ativa e data automática\",()=>{pm.expect(r.status).eql(\"ATIVO\");pm.expect(r.dataCadastro).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Consultar pessoa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pessoas/{{a10pessoa}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - CPF inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa Jogos {{execucao}}\",\"email\":\"a10-{{execucao}}@example.com\",\"cpf\":\"52998224724\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));",
+                  "pm.test(\"CPF no fields\",()=>pm.expect(r.fields.cpf).eql(\"CPF inválido\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - CNPJ inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/fornecedores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"razaoSocial\":\"Empresa fictícia\",\"cnpj\":\"11222333000182\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));",
+                  "pm.test(\"CNPJ no fields\",()=>pm.expect(r.fields.cnpj).eql(\"CNPJ inválido\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - CPF duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa Jogos {{execucao}}\",\"email\":\"outro-{{execucao}}@example.com\",\"cpf\":\"{{a10cpf}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\",()=>pm.response.to.have.status(409));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Email duplicado normalizado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa Jogos {{execucao}}\",\"email\":\"A10-{{execucao}}@EXAMPLE.COM\",\"cpf\":\"{{a10cpf2}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\",()=>pm.response.to.have.status(409));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Alterar pessoa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas/{{a10pessoa}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Pessoa Jogos Atualizada {{execucao}}\",\"email\":\"a10-{{execucao}}@example.com\",\"cpf\":\"{{a10cpf}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Pesquisar pessoas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pessoas?nome={{execucao}}&status=ATIVO&page=0&size=5&sort=nome,asc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Pessoa encontrada\",()=>pm.expect(r.conteudo.map(x=>x.id)).to.include(Number(pm.collectionVariables.get(\"a10pessoa\"))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - Criar cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pessoaId\":{{a10pessoa}},\"telefone\":null}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10cliente\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/clientes\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 - Criar colaborador na mesma pessoa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/colaboradores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pessoaId\":{{a10pessoa}},\"matricula\":\"VEN-{{execucao}}\",\"funcao\":\"VENDEDOR\",\"dataAdmissao\":\"2026-11-05\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10vendedor\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/colaboradores\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));",
+                  "pm.test(\"Papéis simultâneos\",()=>pm.expect(r.pessoaId).eql(Number(pm.collectionVariables.get(\"a10pessoa\"))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 - Papel de cliente duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pessoaId\":{{a10pessoa}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\",()=>pm.response.to.have.status(409));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 - Consultar cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/clientes/{{a10cliente}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 - Consultar colaborador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/colaboradores/{{a10vendedor}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 - Pesquisar clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/clientes?pessoaId={{a10pessoa}}&page=0&size=5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 - Pesquisar colaboradores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/colaboradores?pessoaId={{a10pessoa}}&funcao=VENDEDOR&page=0&size=5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 - Atualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{a10cliente}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"telefone\":\"(11) 99999-0000\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17 - Atualizar colaborador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/colaboradores/{{a10vendedor}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"matricula\":\"GER-{{execucao}}\",\"funcao\":\"GERENTE\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18 - Cadastrar gênero da venda",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/generos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Venda Jogos {{execucao}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10genero\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/generos\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "19 - Cadastrar fornecedor válido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/fornecedores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"razaoSocial\":\"Fornecedor Aula10 {{execucao}}\",\"cnpj\":\"{{a10cnpj}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10fornecedor\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/fornecedores\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "20 - Jogo A preço100 saldo10",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"codigo\":\"A10A-{{execucao}}\",\"nome\":\"Reino das Estrelas\",\"preco\":100,\"unidadesDisponiveis\":10,\"estoqueMinimo\":1,\"generoId\":{{a10genero}},\"fornecedorId\":{{a10fornecedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10jogo1\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/jogos\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "21 - Jogo B preço50 saldo10",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"codigo\":\"A10B-{{execucao}}\",\"nome\":\"Aventura das Luas\",\"preco\":50,\"unidadesDisponiveis\":10,\"estoqueMinimo\":1,\"generoId\":{{a10genero}},\"fornecedorId\":{{a10fornecedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10jogo2\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/jogos\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "22 - Abrir venda",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\":{{a10cliente}},\"vendedorId\":{{a10vendedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10venda\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/vendas\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "23 - Adicionar duas unidades A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/itens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogoId\":{{a10jogo1}},\"quantidade\":2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10item\",r.itens[0].id);",
+                  "pm.test(\"Total200\",()=>pm.expect(r.total).eql(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "24 - Remover item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/itens/{{a10item}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\",()=>pm.response.to.have.status(204));",
+                  "pm.test(\"204 sem corpo\",()=>pm.expect(pm.response.text()).eql(\"\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "25 - Reincluir A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/itens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogoId\":{{a10jogo1}},\"quantidade\":2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10item\",r.itens[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "26 - Adicionar três unidades B",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/itens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogoId\":{{a10jogo2}},\"quantidade\":3}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Total350\",()=>pm.expect(r.total).eql(350));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "27 - Saldo A antes finalizar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo1}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Estoque continua10\",()=>pm.expect(r.unidadesDisponiveis).eql(10));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "28 - Alterar preço atual para120",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo1}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Reino das Estrelas\",\"preco\":120,\"estoqueMinimo\":1,\"generoId\":{{a10genero}},\"fornecedorId\":{{a10fornecedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "29 - Consultar snapshot histórico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Preço histórico100 e total350\",()=>{pm.expect(r.itens[0].valorUnitario).eql(100);pm.expect(r.itens[0].subtotal).eql(200);pm.expect(r.total).eql(350);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "30 - Finalizar venda",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/finalizacao"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Finalizada\",()=>pm.expect(r.status).eql(\"FINALIZADA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "31 - Conferir saldo final A8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo1}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Estoque A8\",()=>pm.expect(r.unidadesDisponiveis).eql(8));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "32 - Conferir saldo final B7",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo2}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Estoque B7\",()=>pm.expect(r.unidadesDisponiveis).eql(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "33 - Bloquear remoção após finalização",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/itens/{{a10item}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));",
+                  "pm.test(\"Transição proibida\",()=>pm.expect(r.message).eql(\"Somente vendas abertas podem ser alteradas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "34 - Bloquear segunda finalização",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}/finalizacao"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "35 - Bloquear exclusão de jogo vendido",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo1}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\",()=>pm.response.to.have.status(409));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "36 - Pesquisar resumo de vendas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas?clienteId={{a10cliente}}&status=FINALIZADA&page=0&size=5&sort=dataVenda,desc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Resumo sem itens\",()=>pm.expect(r.conteudo[0]).not.to.have.property(\"itens\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "37 - Abrir venda vazia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\":{{a10cliente}},\"vendedorId\":{{a10vendedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10vazia\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/vendas\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "38 - Rejeitar finalização vazia",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10vazia}}/finalizacao"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "39 - Cancelar venda aberta",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10vazia}}/cancelamento"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Cancelada\",()=>pm.expect(r.status).eql(\"CANCELADA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "40 - Inativar pessoa após venda",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas/{{a10pessoa}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"INATIVO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "41 - Consultar histórico preservado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10venda}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Histórico preservado\",()=>{pm.expect(r.status).eql(\"FINALIZADA\");pm.expect(r.itens.length).eql(2);pm.expect(r.total).eql(350);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "42 - Impedir venda com pessoa inativa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\":{{a10cliente}},\"vendedorId\":{{a10vendedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "43 - Reativar pessoa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/pessoas/{{a10pessoa}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"ATIVO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "44 - Abrir venda para rollback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\":{{a10cliente}},\"vendedorId\":{{a10vendedor}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\",()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();",
+                  "pm.collectionVariables.set(\"a10rollback\",r.id);",
+                  "pm.test(\"Location\",()=>pm.expect(pm.response.headers.get(\"Location\")).eql(\"/api/vendas\".replace(/\\{\\{(.*?)\\}\\}/g,(_,k)=>pm.collectionVariables.get(k))+\"/\"+r.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "45 - Rollback incluir A suficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas/{{a10rollback}}/itens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogoId\":{{a10jogo1}},\"quantidade\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "46 - Rollback incluir B insuficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vendas/{{a10rollback}}/itens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogoId\":{{a10jogo2}},\"quantidade\":999}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "47 - Rollback finalização falha",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10rollback}}/finalizacao"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\",()=>pm.response.to.have.status(400));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"ApiError\",()=>pm.expect(r).to.have.all.keys(\"timestamp\",\"status\",\"error\",\"message\",\"path\",\"fields\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "48 - Rollback saldo A preservado8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo1}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"A sem baixa parcial\",()=>pm.expect(r.unidadesDisponiveis).eql(8));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "49 - Rollback saldo B preservado7",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogos/{{a10jogo2}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"B sem baixa parcial\",()=>pm.expect(r.unidadesDisponiveis).eql(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "50 - Rollback venda continua aberta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10rollback}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "pm.test(\"Continua ABERTA\",()=>pm.expect(r.status).eql(\"ABERTA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "51 - Cancelar venda após rollback",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendas/{{a10rollback}}/cancelamento"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Aula 12 - Autenticação e troca de senha",
+      "item": [
+        {
+          "name": "12-04 Jogo anônimo rejeitado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jogos"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401',()=>pm.response.to.have.status(401));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-05 Senha incorreta rejeitada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{authLogin}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "incorreta-ficticia-a12",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401',()=>pm.response.to.have.status(401));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-06 Login inexistente rejeitado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "ausente-{{authLogin}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{authPassword}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401',()=>pm.response.to.have.status(401));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-07 Login duplicado rejeitado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pessoaId\":{{a12PessoaId}},\"login\":\"{{authLogin}}\",\"senha\":\"{{authPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409',()=>pm.response.to.have.status(409));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-08 Trocar senha",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me/senha",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me",
+                "senha"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"senhaAtual\":\"{{authPassword}}\",\"novaSenha\":\"{{authPasswordNova}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204',()=>pm.response.to.have.status(204));",
+                  "pm.test('corpo vazio',()=>pm.expect(pm.response.text()).to.eql(''));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-09 Senha antiga não autentica",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401',()=>pm.response.to.have.status(401));",
+                  "pm.collectionVariables.set('authPassword',pm.collectionVariables.get('authPasswordNova'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-10 Nova senha autentica",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-11 Inativar pessoa bootstrap",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pessoas/{{a12PessoaId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pessoas",
+                "{{a12PessoaId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"INATIVO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12-12 Pessoa inativa não autentica",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contas-acesso/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contas-acesso",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401',()=>pm.response.to.have.status(401));",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "generoId",
+      "value": ""
+    },
+    {
+      "key": "fornecedorId",
+      "value": ""
+    },
+    {
+      "key": "jogoId",
+      "value": ""
+    },
+    {
+      "key": "execucao",
+      "value": ""
+    },
+    {
+      "key": "generoNome",
+      "value": ""
+    },
+    {
+      "key": "cnpjTeste",
+      "value": ""
+    },
+    {
+      "key": "dataCadastroJogo",
+      "value": ""
+    },
+    {
+      "key": "authLogin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authPasswordNova",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "a12PessoaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "a12Cpf",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "a12Email",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "script": {
+        "exec": [
+          "function fiscal(base, cnpj) {",
+          " if (!/^\\d+$/.test(base) || base.length !== (cnpj ? 12 : 9)) throw new Error(\"Base fiscal invalida\");",
+          " // Descarta bases repetidas e reserva o zero final para CPFs gerados em pares consecutivos.",
+          " if (/^(\\d)\\1+$/.test(base)) base = ((Number(base[0]) + 1) % 10) + base.slice(1);",
+          " else if (!cnpj && /^0{8}/.test(base)) base = \"1\" + base.slice(1);",
+          " let s=base;",
+          " for(let n=0;n<2;n++){let soma=0,peso=cnpj?s.length-7:s.length+1;",
+          "  for(let i=0;i<s.length;i++){soma+=Number(s[i])*peso--;if(cnpj&&peso===1)peso=9;}",
+          "  const resto=soma%11;s+=resto<2?0:11-resto;",
+          " }return s;",
+          "}",
+          "if (pm.info.requestName === \"00 - Health\") {",
+          " const token = Date.now().toString();",
+          " pm.collectionVariables.set(\"execucao\", token);",
+          " pm.collectionVariables.set(\"generoNome\", \"RPG \" + token);",
+          " pm.collectionVariables.set(\"cnpjTeste\", fiscal(token.padStart(12, \"0\").slice(-12), true));",
+          "}",
+          "if(pm.info.requestName === \"00 - Health\") {",
+          "const token=pm.collectionVariables.get(\"execucao\");",
+          "pm.collectionVariables.set(\"a10cpf\",fiscal(token.padStart(9,\"0\").slice(-9),false));",
+          "pm.collectionVariables.set(\"a10cpf2\",fiscal(String(Number(token.slice(-9))+1).padStart(9,\"0\").slice(-9),false));",
+          "pm.collectionVariables.set(\"a10cnpj\",fiscal(String(Number(token.slice(-12))+1).padStart(12,\"0\").slice(-12),true));",
+          "}",
+          "if (pm.info.requestName === '12-00 Health e bootstrap') {\n const token=pm.variables.replaceIn('{{$guid}}');\n pm.collectionVariables.set('authLogin','op-'+token.replace(/-/g,''));\n pm.collectionVariables.set('authPassword','Teste-'+pm.variables.replaceIn('{{$guid}}'));\n pm.collectionVariables.set('authPasswordNova','Nova-'+pm.variables.replaceIn('{{$guid}}'));\n pm.collectionVariables.set('a12Cpf',fiscal(Date.now().toString().slice(-9),false));\n pm.collectionVariables.set('a12Email','a12-'+token+'@example.invalid');\n}"
+        ],
+        "type": "text/javascript"
+      },
+      "listen": "prerequest"
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if(pm.response.headers.get('Content-Type')?.includes('application/json')) { const text=pm.response.text(), body=pm.response.json(); pm.test('resposta não expõe credenciais',()=>{ for(const key of ['senha','senhaHash','senha_hash','senhaAtual','novaSenha']) pm.expect(body).not.to.have.property(key); for(const key of ['authPassword','authPasswordNova']) {const value=pm.collectionVariables.get(key); if(value) pm.expect(text.includes(value)).to.eql(false); } }); }"
+        ]
+      }
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{authLogin}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{authPassword}}",
+        "type": "string"
+      }
+    ]
+  }
+}

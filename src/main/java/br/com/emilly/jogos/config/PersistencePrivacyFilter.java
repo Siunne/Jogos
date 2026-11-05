@@ -19,6 +19,15 @@ public class PersistencePrivacyFilter extends TurboFilter {
   // Lista fechada: nomes desconhecidos podem conter dados e não são registrados.
   private static final Set<String> CONSTRAINTS =
       Set.of(
+          "uk_conta_acesso_pessoa",
+          "uk_conta_acesso_login_lower",
+          "ck_conta_acesso_status",
+          "ck_conta_acesso_perfil",
+          "ck_conta_acesso_login",
+          "ck_conta_acesso_hash",
+          "fk_conta_acesso_pessoa",
+          "fk_conta_acesso_perfil",
+          "pk_conta_acesso_perfil",
           "uk_pessoa_cpf",
           "uk_pessoa_email_normalizado",
           "uk_cliente_pessoa_id",
@@ -60,6 +69,8 @@ public class PersistencePrivacyFilter extends TurboFilter {
       Throwable throwable) {
     if (logger.getName().equals(SAFE_LOGGER)) return FilterReply.NEUTRAL;
     String name = logger.getName();
+    // Autenticação não produz logs de credenciais, headers ou UserDetails, mesmo sob TRACE.
+    if (name.startsWith("org.springframework.security")) return FilterReply.DENY;
     // Não permitir que uma configuração DEBUG/TRACE exponha parâmetros ou SQL literal.
     if (name.equals("org.hibernate.SQL")
         || name.startsWith("org.hibernate.orm.jdbc.bind")

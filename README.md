@@ -107,4 +107,10 @@ A Aula 10 foi publicada no commit `0a7b201c5b61ae13a2832f734aac70bcd196e301`, ta
 
 O [guia da Aula 11](docs/aula-11-concorrencia.md) documenta locking pessimista, ordem de aquisição, cuidados com refresh e atualizações de cadastro, diagnóstico e atividades. Consulte as [evidências reais](docs/aula-11-evidencias.md), a [matriz de conformidade](docs/aula-11-auditoria.md), o [contrato atual](docs/aula-11-openapi.yaml) e o [inventário](docs/aula-11-arquivos.md). Os contratos das Aulas 09 e 10 foram preservados.
 
-A Aula 11 permanece exclusivamente local, sem staging, commit, push ou tag. Use somente jogos_test nas execuções de escrita. Participação e apresentação em dupla dependem de comprovação humana.
+A Aula 11 foi publicada em `56ce7361da8f8f384c1f51125254b7a424ec8859`, tag `aula-11-concorrencia-estoque`. Seu contrato e evidências permanecem históricos.
+
+## Aula 12 — Autenticação HTTP Basic
+
+O [guia](docs/aula-12-autenticacao.md) apresenta ContaAcesso separada dos papéis comerciais, BCrypt, política UTF-8, migração006 e Spring Security stateless. Consulte [evidências](docs/aula-12-evidencias.md), [matriz](docs/aula-12-auditoria.md), [questões](docs/aula-12-questoes.md), [contrato atual](docs/aula-12-openapi.yaml) e [inventário](docs/aula-12-arquivos.md). A [coleção Aula12](postman/Jogos-Aula12.postman_collection.json) gera credenciais fictícias e autentica os fluxos anteriores.
+
+Implementação somente local, sem staging, commit, push ou tag. Use jogos_test. Cadastro público e HTTP semTLS são simplificações de laboratório, inadequadas para produção.

@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -138,7 +139,8 @@ class OpenApiDocumentationTest {
             "post /api/vendas/{id}/itens",
             "delete /api/vendas/{vendaId}/itens/{itemId}",
             "post /api/vendas/{id}/finalizacao",
-            "post /api/vendas/{id}/cancelamento"),
+            "post /api/vendas/{id}/cancelamento",
+            "post /api/contas-acesso", "get /api/contas-acesso/me", "put /api/contas-acesso/me/senha"),
         operations.keySet());
     var reais = new HashSet<String>();
     mappings
@@ -171,7 +173,7 @@ class OpenApiDocumentationTest {
             "Pessoas",
             "Clientes",
             "Colaboradores",
-            "Vendas"),
+            "Vendas", "Contas de acesso"),
         valores(json.valueToTree(doc.path("tags").findValuesAsText("name"))));
     var ids = new HashSet<String>();
     operacoes(doc)
@@ -181,7 +183,7 @@ class OpenApiDocumentationTest {
               assertFalse(op.path("description").asText().isBlank(), path);
               assertTrue(ids.add(op.path("operationId").asText()), path);
               String tag =
-                  path.contains("/generos")
+                  path.contains("/contas-acesso") ? "Contas de acesso" : path.contains("/generos")
                       ? "Gêneros de jogos"
                       : path.contains("/jogos")
                           ? "Jogos"
@@ -244,7 +246,9 @@ class OpenApiDocumentationTest {
     operacoes(doc)
         .forEach(
             (path, op) -> {
-              assertEquals(expected.get(path), chaves(op.path("responses")), path);
+              var codigos = new HashSet<>(path.equals("post /api/contas-acesso") ? Set.of("201","400","404","409") : path.equals("get /api/contas-acesso/me") ? Set.of("200") : path.equals("put /api/contas-acesso/me/senha") ? Set.of("204","400") : expected.get(path));
+              if (!Set.of("get /api/health","post /api/pessoas","post /api/contas-acesso").contains(path)) codigos.add("401");
+              assertEquals(codigos, chaves(op.path("responses")), path);
               op.path("responses")
                   .fields()
                   .forEachRemaining(
@@ -252,7 +256,7 @@ class OpenApiDocumentationTest {
                         var value = response.getValue();
                         if (Integer.parseInt(response.getKey()) >= 400) {
                           assertEquals(
-                              "#/components/schemas/ApiError",
+                              response.getKey().equals("401") ? "#/components/schemas/ErroAutenticacao" : "#/components/schemas/ApiError",
                               value.at("/content/application~1json/schema/$ref").asText(),
                               path);
                         } else if (response.getKey().equals("204")) {
@@ -517,6 +521,11 @@ class OpenApiDocumentationTest {
                                   .at("/content/application~1json/examples/Erro" + code + "/value");
                           assertFalse(example.isMissingNode(), path);
                           assertEquals(code, example.path("status").asInt(), path);
+                          if (code == 401) {
+                            assertEquals(Set.of("status", "message"), chaves(example));
+                            assertEquals("Autenticação necessária ou credenciais inválidas", example.path("message").asText());
+                            return;
+                          }
                           assertEquals(
                               code == 400 ? "Bad Request" : code == 404 ? "Not Found" : "Conflict",
                               example.path("error").asText());
@@ -643,7 +652,7 @@ class OpenApiDocumentationTest {
   void contratoExportadoEReproduzivelETodasAsReferenciasResolvem() throws Exception {
     var doc = documento();
     var exportado =
-        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-11-openapi.yaml")));
+        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-12-openapi.yaml")));
     // A URL de servidor depende da porta usada na captura; o contrato não depende dela.
     for (String part : List.of("openapi", "info", "paths", "components", "tags", "externalDocs")) {
       assertEquals(doc.path(part), exportado.path(part), part);

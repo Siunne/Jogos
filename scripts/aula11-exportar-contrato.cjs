@@ -6,6 +6,7 @@ assert(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
 (async () => {
   const jr = await fetch(base + '/v3/api-docs'); assert.equal(jr.status, 200);
   const raw = await jr.text(), doc = JSON.parse(raw);
+  assert(!doc.paths['/api/contas-acesso'], 'Use aula12-exportar-contrato.cjs; contrato Aula11 é histórico.');
   assert.equal(Object.keys(doc.paths).length, 24);
   assert.equal(Object.keys(doc.components.schemas).length, 30);
   assert.equal(doc.tags.length, 8);

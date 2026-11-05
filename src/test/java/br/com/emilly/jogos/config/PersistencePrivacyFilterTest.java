@@ -11,6 +11,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
 class PersistencePrivacyFilterTest {
+  @Test
+  void diagnosticosDeSegurancaNaoRepassamCredenciaisMesmoEmTrace() {
+    try (var context = new TestContext()) {
+      var filter = new PersistencePrivacyFilter();
+      filter.setContext(context); filter.start(); context.addTurboFilter(filter);
+      var appender = new ListAppender<ILoggingEvent>(); appender.start();
+      context.getLogger("ROOT").setLevel(Level.TRACE); context.getLogger("ROOT").addAppender(appender);
+      for (String name : new String[]{"org.springframework.security.authentication", "org.springframework.security.web.authentication.www.BasicAuthenticationFilter"}) {
+        context.getLogger(name).trace("Authorization Basic: token fictício; senha fictícia");
+        context.getLogger(name).warn("Falha de autenticação com argumento fictício");
+      }
+      assertTrue(appender.list.isEmpty());
+      context.getLogger("aplicacao").info("Evento técnico sem credencial");
+      assertEquals(1, appender.list.size());
+    }
+  }
   static class TestContext extends LoggerContext implements AutoCloseable {
     @Override
     public void close() {

@@ -23,6 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /** Sem transação externa de teste: preparação confirmada, duas conexões e leitura final JDBC. */
+@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
 @SpringBootTest
 @org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 @ActiveProfiles("test")
