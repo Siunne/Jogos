@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Table(
         name = "jogo",
         uniqueConstraints = {

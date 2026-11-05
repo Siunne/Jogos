@@ -1,0 +1,427 @@
+{
+  "instante": "2026-11-05T18:27:05.168Z",
+  "banco": "jogos_test",
+  "postgres": "17.11",
+  "isolation": "READ COMMITTED",
+  "maven": {
+    "tests": 198,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiComercialTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiConcorrenciaTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiDocumentationTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiProfilesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.api.OpenApiUnicodeEquivalenceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.ConcorrenciaEstoqueTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.JogoServiceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.application.VendaServiceTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.config.PersistencePrivacyFilterTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.config.PersistencePrivacyIntegrationTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.Aula08ControllerTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.Aula10ControllerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.ConsultasAula07Test",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.GeneroJogoControllerTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.controller.TextoNormalizadoHttpTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.Aula08DomainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.DocumentoFiscalTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.GeneroJogoTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.JogoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.PessoaTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.TextoNormalizadoTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.domain.VendaTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.JogosApplicationTests",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.MigracaoComercialTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.MigracaoGeneroTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.PersistenciaJpaTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "br.com.emilly.jogos.UnicidadeGeneroTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "node": {
+    "tests": 14,
+    "pass": 14,
+    "fail": 0
+  },
+  "newman": {
+    "requests": 81,
+    "assertions": 135,
+    "failures": 0
+  },
+  "http": {
+    "instante": "2026-11-05T18:24:34.699Z",
+    "bancoConfirmado": "jogos_test",
+    "requests": 40,
+    "results": [
+      {
+        "cenario": "vendas4+4/saldo5",
+        "http": [
+          200,
+          400
+        ],
+        "estados": [
+          "FINALIZADA",
+          "ABERTA"
+        ],
+        "saldo": 1
+      },
+      {
+        "cenario": "saídas4+4/saldo5",
+        "http": [
+          400,
+          200
+        ],
+        "saldo": 1
+      },
+      {
+        "cenario": "entradas2+3",
+        "saldo": 10
+      },
+      {
+        "cenario": "venda e saída4+4",
+        "http": [
+          400,
+          200
+        ],
+        "saldo": 1
+      },
+      {
+        "cenario": "dois jogos, itens inversos",
+        "http": [
+          200,
+          400
+        ],
+        "saldos": [
+          1,
+          1
+        ]
+      }
+    ],
+    "limite": "HTTP simultâneo complementa, não substitui barreiras e duas conexões dos testes Java."
+  },
+  "concorrencia": [
+    {
+      "cenario": "entrada e venda",
+      "saldoA": 4,
+      "saldoB": 5,
+      "estados": [
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "cadastro concorrente não sobrescreve saldo",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "duas saídas manuais",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "entrada legada e saída",
+      "saldoA": 4,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "itens inversos, locks crescentes",
+      "saldoA": 1,
+      "saldoB": 1,
+      "estados": [
+        "ABERTA",
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "finalização duplicada",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "contexto previamente carregado",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "entradas 2+3",
+      "saldoA": 10,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "timeout real HTTP409 sem baixa",
+      "saldoA": 5,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "venda contra saída manual",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "ABERTA"
+      ]
+    },
+    {
+      "cenario": "experimento diagnóstico: ciclo deliberado SQLState40P01; saldos preservados",
+      "saldoA": 5,
+      "saldoB": 5,
+      "estados": []
+    },
+    {
+      "cenario": "duas vendas 4+4 sobre saldo5",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "ABERTA",
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "duas vendas 4+4 sobre saldo5",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "ABERTA",
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "duas vendas 4+4 sobre saldo5",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "ABERTA",
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "experimento controlado sem política: vende8 de5",
+      "saldoA": 1,
+      "saldoB": 5,
+      "estados": [
+        "FINALIZADA",
+        "FINALIZADA"
+      ]
+    },
+    {
+      "cenario": "espera observada em pg_stat_activity/pg_blocking_pids",
+      "saldoA": 3,
+      "saldoB": 5,
+      "estados": []
+    }
+  ],
+  "mutacaoIsolada": {
+    "tests": 3,
+    "failuresEsperadas": 3,
+    "errors": 0,
+    "motivo": "ambas as vendas finalizaram sem proteção; teste rejeita dois sucessos"
+  },
+  "contrato": {
+    "operacoes": 38,
+    "caminhos": 24,
+    "schemas": 30,
+    "tags": 8
+  },
+  "historicosPreservados": 24,
+  "disponibilidadeHttp": {
+    "/api/health": {
+      "status": 200,
+      "type": "text/plain;charset=UTF-8"
+    },
+    "/v3/api-docs": {
+      "status": 200,
+      "type": "application/json"
+    },
+    "/v3/api-docs.yaml": {
+      "status": 200,
+      "type": "application/vnd.oai.openapi"
+    },
+    "/swagger-ui.html": {
+      "status": 302,
+      "type": null
+    },
+    "/swagger-ui/index.html": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/v3/api-docs/swagger-config": {
+      "status": 200,
+      "type": "application/json"
+    }
+  },
+  "arquivos": {
+    "modificados": 9,
+    "novos": 12,
+    "total": 21
+  }
+}

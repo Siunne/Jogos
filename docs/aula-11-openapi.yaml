@@ -1,0 +1,3778 @@
+openapi: 3.1.0
+info:
+  title: Jogos API
+  description: "API didática para cadastro de jogos, gêneros e fornecedores, movimentaç\
+    ões de estoque e pesquisas com filtros, paginação e ordenação. Inclui pessoas,\
+    \ clientes, colaboradores e vendas com preço histórico e finalização transacional."
+  contact:
+    name: Projeto acadêmico Jogos — Sistemas de Informação
+  version: 1.0.0
+externalDocs:
+  description: Repositório e documentação do projeto Jogos
+  url: https://github.com/Siunne/Jogos
+servers:
+- url: http://localhost:18080
+  description: Generated server url
+tags:
+- name: Jogos
+  description: "Cadastro, manutenção, pesquisa paginada e movimentação de estoque\
+    \ de jogos."
+- name: Infraestrutura
+  description: Verificação simples da disponibilidade HTTP da aplicação.
+- name: Fornecedores
+  description: Cadastro e consultas dos fornecedores opcionais dos jogos.
+- name: Vendas
+  description: Operações comerciais de vendas; sem autenticação nesta aula
+- name: Pessoas
+  description: Operações comerciais de pessoas; sem autenticação nesta aula
+- name: Colaboradores
+  description: Operações comerciais de colaboradores; sem autenticação nesta aula
+- name: Gêneros de jogos
+  description: "Cadastro, consulta, pesquisa, status e exclusão de gêneros de jogos."
+- name: Clientes
+  description: Operações comerciais de clientes; sem autenticação nesta aula
+paths:
+  /api/pessoas/{id}:
+    get:
+      tags:
+      - Pessoas
+      summary: Consultar pessoa
+      description: Retorna a identidade civil.
+      operationId: consultarPessoa
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PessoaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/pessoas/abc
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Pessoa não encontrada
+                    path: /api/pessoas/1
+                    fields: {}
+    put:
+      tags:
+      - Pessoas
+      summary: Alterar pessoa
+      description: "Substitui nome, email e CPF com validação também no domínio. Preserva\
+        \ data/status e vínculos históricos."
+      operationId: alterarPessoa
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PessoaRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PessoaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/pessoas/1
+                    fields:
+                      cpf: CPF inválido
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Pessoa não encontrada
+                    path: /api/pessoas/1
+                    fields: {}
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: CPF já cadastrado
+                    path: /api/pessoas/1
+                    fields: {}
+  /api/pessoas/{id}/status:
+    put:
+      tags:
+      - Pessoas
+      summary: Alterar status da pessoa
+      description: Inativa ou ativa sem apagar papéis ou vendas. Inativa não participa
+        de novas vendas/finalizações.
+      operationId: alterarStatusPessoa
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PessoaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/pessoas/1/status
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Pessoa não encontrada
+                    path: /api/pessoas/1/status
+                    fields: {}
+  /api/jogos/{id}:
+    get:
+      tags:
+      - Jogos
+      summary: Consultar jogo por ID
+      description: "Retorna os dados completos e associações para consulta ou preenchimento\
+        \ do formulário. Código, saldo, data e status são apresentados, mas não pertencem\
+        \ ao PUT geral."
+      operationId: consultarJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/jogos/abc
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+    put:
+      tags:
+      - Jogos
+      summary: Alterar jogo
+      description: "Substitui nome, preço, estoque mínimo, gênero e fornecedor. Preserva\
+        \ código, saldo, data de cadastro e status. Fornecedor null ou ausente remove\
+        \ a associação. A troca de gênero mantém os dois lados da associação. PUT\
+        \ idempotente."
+      operationId: alterarJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: Representação editável completa; gênero obrigatório e fornecedor
+          opcional.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JogoAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Dados ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1
+                    fields:
+                      nome: não deve estar em branco
+        "404":
+          description: "Jogo, gênero ou fornecedor não encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+        "409":
+          description: Conflito de integridade detectado pelo banco
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Operação em conflito com a integridade dos dados
+                    path: /api/jogos/1
+                    fields: {}
+    delete:
+      tags:
+      - Jogos
+      summary: Excluir jogo
+      description: "Remove fisicamente o jogo. Sucesso retorna 204 sem corpo; consulta\
+        \ posterior retorna 404. Conflitos de integridade, caso detectados pelo banco,\
+        \ retornam 409. Não existe regra adicional de jogo em uso neste domínio."
+      operationId: excluirJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "204":
+          description: "Exclusão concluída, sem corpo"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/jogos/abc
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+        "409":
+          description: Conflito de integridade detectado pelo banco
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Operação em conflito com a integridade dos dados
+                    path: /api/jogos/1
+                    fields: {}
+  /api/jogos/{id}/status:
+    put:
+      tags:
+      - Jogos
+      summary: Alterar status do jogo
+      description: Ativa ou inativa o jogo sem excluir o cadastro nem alterar saldo
+        ou data. Alterar status não equivale a exclusão física.
+      operationId: alterarStatusJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Status obrigatório: ATIVO ou INATIVO."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Status ausente/inválido ou identificador inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/jogos/1/status
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/status
+                    fields: {}
+  /api/generos/{id}:
+    get:
+      tags:
+      - Gêneros de jogos
+      summary: Consultar gênero por ID
+      description: Retorna o gênero com nome e status para consulta e preenchimento
+        do formulário de alteração.
+      operationId: consultarGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/generos/abc
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+    put:
+      tags:
+      - Gêneros de jogos
+      summary: Alterar gênero
+      description: "Substitui o nome do gênero, normalizando espaços externos e verificando\
+        \ duplicidade sem considerar o próprio ID. PUT idempotente; preserva status."
+      operationId: alterarGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Representação editável: nome obrigatório, até 120 caracteres."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneroJogoAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Nome ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/generos/1
+                    fields:
+                      nome: não deve estar em branco
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+        "409":
+          description: Nome normalizado já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Nome do gênero já cadastrado
+                    path: /api/generos/1
+                    fields: {}
+    delete:
+      tags:
+      - Gêneros de jogos
+      summary: Excluir gênero
+      description: Exclui fisicamente somente gênero sem jogos. Gênero em uso gera
+        409; para mantê-lo e preservar vínculos use a operação de status. Sucesso
+        não possui corpo.
+      operationId: excluirGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "204":
+          description: "Exclusão concluída, sem corpo"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/generos/abc
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+        "409":
+          description: Gênero possui jogos ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Gênero não pode ser excluído porque possui jogos
+                    path: /api/generos/1
+                    fields: {}
+  /api/generos/{id}/status:
+    put:
+      tags:
+      - Gêneros de jogos
+      summary: Alterar status do gênero
+      description: Ativa ou inativa sem excluir fisicamente ou remover jogos associados.
+        Repetir o mesmo status mantém o estado final.
+      operationId: alterarStatusGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Status obrigatório: ATIVO ou INATIVO."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Status ausente/inválido ou identificador inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/generos/1/status
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1/status
+                    fields: {}
+  /api/colaboradores/{id}:
+    get:
+      tags:
+      - Colaboradores
+      summary: Consultar colaborador
+      description: "Retorna vínculo e dados necessários da pessoa, carregados sem\
+        \ OSIV."
+      operationId: consultarColaborador
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColaboradorResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/colaboradores/abc
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Colaborador não encontrado
+                    path: /api/colaboradores/1
+                    fields: {}
+    put:
+      tags:
+      - Colaboradores
+      summary: Alterar colaborador
+      description: Altera matrícula e função; preserva identidade e data de admissão.
+      operationId: alterarColaborador
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColaboradorAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColaboradorResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/colaboradores/1
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Colaborador não encontrado
+                    path: /api/colaboradores/1
+                    fields: {}
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: Matrícula já cadastrada
+                    path: /api/colaboradores/1
+                    fields: {}
+  /api/clientes/{id}:
+    get:
+      tags:
+      - Clientes
+      summary: Consultar cliente
+      description: "Retorna vínculo e dados necessários da pessoa, carregados sem\
+        \ OSIV."
+      operationId: consultarCliente
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/clientes/abc
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Cliente não encontrado
+                    path: /api/clientes/1
+                    fields: {}
+    put:
+      tags:
+      - Clientes
+      summary: Alterar cliente
+      description: Altera somente telefone; null/vazio remove o contato.
+      operationId: alterarCliente
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClienteAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/clientes/1
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Cliente não encontrado
+                    path: /api/clientes/1
+                    fields: {}
+  /api/vendas:
+    get:
+      tags:
+      - Vendas
+      summary: Pesquisar vendas
+      description: "Filtros combináveis por status, cliente, vendedor e datas inclusivas.\
+        \ Rejeita período invertido. Ordenação: id,dataVenda,status. Resumo sem itens\
+        \ ou total evita carregar coleções na página."
+      operationId: pesquisarVendas
+      parameters:
+      - name: status
+        in: query
+        description: Estado da venda
+        required: false
+        schema:
+          type: string
+          enum:
+          - ABERTA
+          - FINALIZADA
+          - CANCELADA
+      - name: clienteId
+        in: query
+        description: Cliente comprador
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: vendedorId
+        in: query
+        description: Colaborador vendedor
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: dataInicial
+        in: query
+        description: "Início inclusivo, yyyy-MM-dd"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: dataFinal
+        in: query
+        description: "Fim inclusivo, yyyy-MM-dd"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: page
+        in: query
+        description: Página base zero
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: "Padrão 20, mínimo 1 e máximo 100; inválido retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+      - name: sort
+        in: query
+        description: "campo,asc ou campo,desc; repetível. Campos permitidos na descriç\
+          ão da operação"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "id,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseVendaResumoResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/vendas
+                    fields: {}
+    post:
+      tags:
+      - Vendas
+      summary: Abrir venda
+      description: "Começa ABERTA, sem baixar estoque; cliente ativo e vendedor/gerente\
+        \ ativo."
+      operationId: abrirVenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendaRequest"
+        required: true
+      responses:
+        "201":
+          description: Recurso criado; Location contém a URI relativa
+          headers:
+            Location:
+              description: URI do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/vendas
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Cliente não encontrado
+                    path: /api/vendas
+                    fields: {}
+  /api/vendas/{id}/itens:
+    post:
+      tags:
+      - Vendas
+      summary: Adicionar item
+      description: "Somente ABERTA. Jogo ativo, quantidade positiva. Copia preço atual\
+        \ sem baixar estoque. Jogo não pode repetir na venda. Comandos usam bloqueio\
+        \ pessimista transacional; podem aguardar outra transação. Timeout/deadlock\
+        \ retorna 409 sem retry automático."
+      operationId: adicionarItemVenda
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemVendaRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/vendas/1/itens
+                    fields:
+                      quantidade: Quantidade mínima é 0.001
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Venda não encontrada
+                    path: /api/vendas/1/itens
+                    fields: {}
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: Operação em conflito com a integridade dos dados
+                    path: /api/vendas/1/itens
+                    fields: {}
+                ConflitoConcorrente:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/vendas/1/itens
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+  /api/vendas/{id}/finalizacao:
+    post:
+      tags:
+      - Vendas
+      summary: Finalizar venda
+      description: "Uma única transação valida participantes, jogos ativos e saldos;\
+        \ baixa todos os jogos e marca FINALIZADA. Venda vazia ou repetição falham.\
+        \ Rollback impede baixa parcial. PESSIMISTIC_WRITE recarrega saldos antes\
+        \ da conferência; jogos são bloqueados por ID crescente até commit ou rollback.\
+        \ O preço histórico dos itens é preservado. Comandos usam bloqueio pessimista\
+        \ transacional; podem aguardar outra transação. Timeout/deadlock retorna 409\
+        \ sem retry automático."
+      operationId: finalizarVenda
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Somente vendas abertas podem ser alteradas
+                    path: /api/vendas/1/finalizacao
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Venda não encontrada
+                    path: /api/vendas/1/finalizacao
+                    fields: {}
+        "409":
+          description: Conflito concorrente (timeout ou deadlock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/vendas/1/finalizacao
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+  /api/vendas/{id}/cancelamento:
+    post:
+      tags:
+      - Vendas
+      summary: Cancelar venda aberta
+      description: "ABERTA passa a CANCELADA sem baixa. Não permite reabrir, alterar\
+        \ ou estornar FINALIZADA nesta aula. Comandos usam bloqueio pessimista transacional;\
+        \ podem aguardar outra transação. Timeout/deadlock retorna 409 sem retry automá\
+        tico."
+      operationId: cancelarVenda
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Somente vendas abertas podem ser alteradas
+                    path: /api/vendas/1/cancelamento
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Venda não encontrada
+                    path: /api/vendas/1/cancelamento
+                    fields: {}
+        "409":
+          description: Conflito concorrente (timeout ou deadlock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/vendas/1/cancelamento
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+  /api/pessoas:
+    get:
+      tags:
+      - Pessoas
+      summary: Pesquisar pessoas
+      description: "Filtros combináveis por nome e status. Ordenação: id,nome,email,cpf,dataCadastro,status.\
+        \ PaginaResponse com sete campos."
+      operationId: pesquisarPessoas
+      parameters:
+      - name: nome
+        in: query
+        description: "Trecho do nome, ignora caixa"
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: ATIVO ou INATIVO
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+      - name: page
+        in: query
+        description: Página base zero
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: "Padrão 20, mínimo 1 e máximo 100; inválido retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+      - name: sort
+        in: query
+        description: "campo,asc ou campo,desc; repetível. Campos permitidos na descriç\
+          ão da operação"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "id,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponsePessoaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/pessoas
+                    fields: {}
+    post:
+      tags:
+      - Pessoas
+      summary: Cadastrar pessoa
+      description: "Cria pessoa ATIVA. Data do servidor, CPF sem pontuação e email\
+        \ normalizado; valida DVs sem comprovar titularidade."
+      operationId: cadastrarPessoa
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PessoaRequest"
+        required: true
+      responses:
+        "201":
+          description: Recurso criado; Location contém a URI relativa
+          headers:
+            Location:
+              description: URI do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PessoaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/pessoas
+                    fields:
+                      cpf: CPF inválido
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: CPF já cadastrado
+                    path: /api/pessoas
+                    fields: {}
+  /api/jogos:
+    get:
+      tags:
+      - Jogos
+      summary: Pesquisar jogos
+      description: "Combina nome, status, generoId, fornecedorId e abaixoEstoqueMinimo\
+        \ no banco. Não existe filtro por preço. Página base zero, padrão 20, máximo\
+        \ 100. Ordenação permitida: id, nome, codigo, preco, estoqueMinimo, unidadesDisponiveis,\
+        \ dataCadastro, status. Retorna os sete campos de PaginaResponse."
+      operationId: pesquisarJogos
+      parameters:
+      - name: nome
+        in: query
+        description: "Trecho do nome, sem diferenciar caixa; espaços externos são\
+          \ ignorados"
+        required: false
+        schema:
+          type: string
+        example: estrelas
+      - name: status
+        in: query
+        description: Filtra por ATIVO ou INATIVO; outro valor retorna 400
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+        example: ATIVO
+      - name: generoId
+        in: query
+        description: Identificador exato do gênero; ausência não restringe a consulta
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      - name: fornecedorId
+        in: query
+        description: Identificador exato do fornecedor; ausência não restringe a consulta
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      - name: abaixoEstoqueMinimo
+        in: query
+        description: true exige saldo estritamente menor que o mínimo; false ou ausência
+          não restringe o saldo
+        required: false
+        schema:
+          type: boolean
+        example: true
+      - name: page
+        in: query
+        description: Página iniciada em zero; valor negativo ou não inteiro retorna
+          400
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: "Tamanho da página: padrão 20, entre 1 e 100; fora do intervalo\
+          \ retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+        example: 20
+      - name: sort
+        in: query
+        description: "Ordenação campo,asc ou campo,desc; repetir sort para vários\
+          \ campos. Padrão id,asc. Campos permitidos descritos na operação; caminhos\
+          \ arbitrários retornam 400"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "nome,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseJogoResponse"
+        "400":
+          description: "Filtro, paginação ou ordenação inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/jogos
+                    fields: {}
+    post:
+      tags:
+      - Jogos
+      summary: Cadastrar jogo
+      description: Cria jogo ATIVO com gênero existente e fornecedor opcional. A data
+        de cadastro é definida pelo servidor; não é enviada pelo cliente. Código é
+        único; saldo inicial e mínimo não podem ser negativos.
+      operationId: cadastrarJogo
+      requestBody:
+        description: Dados de criação sem dataCadastro e status; fornecedorId pode
+          ser null ou omitido.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JogoRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Dados ou JSON inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos
+                    fields:
+                      nome: O nome é obrigatório
+        "404":
+          description: Gênero ou fornecedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/jogos
+                    fields: {}
+        "409":
+          description: Código já cadastrado ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Código do jogo já cadastrado
+                    path: /api/jogos
+                    fields: {}
+  /api/jogos/{id}/estoque/saidas:
+    post:
+      tags:
+      - Jogos
+      summary: Registrar saída de estoque
+      description: Subtrai quantidade positiva do saldo. Operação acumulativa e não
+        idempotente. Saldo insuficiente retorna 400 sem alterar o saldo; o estoque
+        nunca pode ficar negativo. Quantidades inválidas são rejeitadas. Comandos
+        usam bloqueio pessimista transacional; podem aguardar outra transação. Timeout/deadlock
+        retorna 409 sem retry automático.
+      operationId: saidaEstoque
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: Quantidade positiva que não pode superar o saldo disponível.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovimentacaoEstoqueRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Quantidade inválida ou unidades disponíveis insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1/estoque/saidas
+                    fields:
+                      quantidade: deve ser maior que 0
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/estoque/saidas
+                    fields: {}
+        "409":
+          description: Conflito concorrente (timeout ou deadlock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/jogos/1/estoque/saidas
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+  /api/jogos/{id}/estoque/entradas:
+    post:
+      tags:
+      - Jogos
+      summary: Registrar entrada de estoque
+      description: "Soma quantidade positiva ao saldo atual. Operação não idempotente\
+        \ e acumulativa: repetir a chamada repete o efeito. Quantidade zero, negativa,\
+        \ ausente ou com mais de três casas decimais é rejeitada. Comandos usam bloqueio\
+        \ pessimista transacional; podem aguardar outra transação. Timeout/deadlock\
+        \ retorna 409 sem retry automático."
+      operationId: entradaEstoque
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Quantidade positiva, com no máximo três casas decimais."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovimentacaoEstoqueRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Quantidade ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1/estoque/entradas
+                    fields:
+                      quantidade: deve ser maior que 0
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/estoque/entradas
+                    fields: {}
+        "409":
+          description: Conflito concorrente (timeout ou deadlock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/jogos/1/estoque/entradas
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+  /api/generos:
+    get:
+      tags:
+      - Gêneros de jogos
+      summary: Pesquisar gêneros
+      description: "Combina nome e status no banco. Página base zero, padrão 20, má\
+        ximo 100. Ordenação permitida: id, nome, status. Retorna PaginaResponse, nã\
+        o Page do Spring."
+      operationId: pesquisarGeneros
+      parameters:
+      - name: nome
+        in: query
+        description: "Trecho do nome, sem diferenciar caixa; espaços externos são\
+          \ ignorados"
+        required: false
+        schema:
+          type: string
+        example: aventura
+      - name: status
+        in: query
+        description: Filtra por ATIVO ou INATIVO; outro valor retorna 400
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+        example: ATIVO
+      - name: page
+        in: query
+        description: Página iniciada em zero; valor negativo ou não inteiro retorna
+          400
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: "Tamanho da página: padrão 20, entre 1 e 100; fora do intervalo\
+          \ retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+        example: 20
+      - name: sort
+        in: query
+        description: "Ordenação campo,asc ou campo,desc; repetir sort para vários\
+          \ campos. Padrão id,asc. Campos permitidos descritos na operação; caminhos\
+          \ arbitrários retornam 400"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "nome,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseGeneroJogoResponse"
+        "400":
+          description: "Filtro, paginação ou ordenação inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/generos
+                    fields: {}
+    post:
+      tags:
+      - Gêneros de jogos
+      summary: Cadastrar gênero
+      description: Cria gênero ATIVO. Nome único após ignorar caixa e espaços externos;
+        cadastro permite até 100 caracteres.
+      operationId: cadastrarGenero
+      requestBody:
+        description: Dados do gênero; não recebe status.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneroJogoRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Nome inválido ou JSON malformado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/generos
+                    fields:
+                      nome: O nome é obrigatório
+        "409":
+          description: Nome normalizado já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Nome do gênero já cadastrado
+                    path: /api/generos
+                    fields: {}
+  /api/fornecedores:
+    get:
+      tags:
+      - Fornecedores
+      summary: Listar fornecedores
+      description: Retorna array de fornecedores. Esta listagem não é paginada e não
+        possui filtros ou ordenação configuráveis.
+      operationId: listarFornecedores
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FornecedorResponse"
+    post:
+      tags:
+      - Fornecedores
+      summary: Cadastrar fornecedor
+      description: Cria fornecedor ATIVO com razão social e identificador único de
+        14 dígitos. Exemplos são fictícios.
+      operationId: cadastrarFornecedor
+      requestBody:
+        description: Razão social obrigatória e CNPJ de 14 dígitos.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FornecedorRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FornecedorResponse"
+        "400":
+          description: Dados ou JSON inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/fornecedores
+                    fields:
+                      razaoSocial: A razão social é obrigatória
+        "409":
+          description: Identificador já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: CNPJ já cadastrado
+                    path: /api/fornecedores
+                    fields: {}
+  /api/colaboradores:
+    get:
+      tags:
+      - Colaboradores
+      summary: Pesquisar colaboradores
+      description: "Filtros combináveis no banco. Página padrão 20, máximo 100. Ordenaç\
+        ão: id,matricula,funcao,dataAdmissao."
+      operationId: pesquisarColaboradores
+      parameters:
+      - name: nome
+        in: query
+        description: Nome da pessoa
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: Estado da pessoa
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+      - name: pessoaId
+        in: query
+        description: Filtra a identidade central
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: funcao
+        in: query
+        description: "Função profissional, não permissão"
+        required: false
+        schema:
+          type: string
+          enum:
+          - VENDEDOR
+          - ESTOQUISTA
+          - GERENTE
+          - ADMINISTRATIVO
+      - name: page
+        in: query
+        description: Página base zero
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: "Padrão 20, mínimo 1 e máximo 100; inválido retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+      - name: sort
+        in: query
+        description: "campo,asc ou campo,desc; repetível. Campos permitidos na descriç\
+          ão da operação"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "id,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseColaboradorResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/colaboradores
+                    fields: {}
+    post:
+      tags:
+      - Colaboradores
+      summary: Cadastrar colaborador
+      description: "Associa papel a pessoa ativa. Uma identidade pode ter ambos os\
+        \ papéis, mas não repetir o mesmo."
+      operationId: cadastrarColaborador
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColaboradorRequest"
+        required: true
+      responses:
+        "201":
+          description: Recurso criado; Location contém a URI relativa
+          headers:
+            Location:
+              description: URI do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColaboradorResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/colaboradores
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Pessoa não encontrada
+                    path: /api/colaboradores
+                    fields: {}
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: Matrícula já cadastrada
+                    path: /api/colaboradores
+                    fields: {}
+  /api/clientes:
+    get:
+      tags:
+      - Clientes
+      summary: Pesquisar clientes
+      description: "Filtros combináveis no banco. Página padrão 20, máximo 100. Ordenaç\
+        ão: id,telefone."
+      operationId: pesquisarClientes
+      parameters:
+      - name: nome
+        in: query
+        description: Nome da pessoa
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: Estado da pessoa
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+      - name: pessoaId
+        in: query
+        description: Filtra a identidade central
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        description: Página base zero
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: "Padrão 20, mínimo 1 e máximo 100; inválido retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+      - name: sort
+        in: query
+        description: "campo,asc ou campo,desc; repetível. Campos permitidos na descriç\
+          ão da operação"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "id,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseClienteResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/clientes
+                    fields: {}
+    post:
+      tags:
+      - Clientes
+      summary: Cadastrar cliente
+      description: "Associa papel a pessoa ativa. Uma identidade pode ter ambos os\
+        \ papéis, mas não repetir o mesmo."
+      operationId: cadastrarCliente
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClienteRequest"
+        required: true
+      responses:
+        "201":
+          description: Recurso criado; Location contém a URI relativa
+          headers:
+            Location:
+              description: URI do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/clientes
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Pessoa não encontrada
+                    path: /api/clientes
+                    fields: {}
+        "409":
+          description: Duplicidade ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 409
+                    error: Conflict
+                    message: Pessoa já possui cadastro de cliente
+                    path: /api/clientes
+                    fields: {}
+  /api/vendas/{id}:
+    get:
+      tags:
+      - Vendas
+      summary: Consultar venda
+      description: "Detalhe com itens e preços históricos; total derivado dos subtotais,\
+        \ sem coluna total."
+      operationId: consultarVenda
+      parameters:
+      - name: id
+        in: path
+        description: Identificador do recurso
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendaResponse"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/vendas/abc
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Venda não encontrada
+                    path: /api/vendas/1
+                    fields: {}
+  /api/health:
+    get:
+      tags:
+      - Infraestrutura
+      summary: Verificar aplicação
+      description: Retorna o texto OK quando a aplicação atende HTTP. Não é um diagnóstico
+        completo dos serviços externos.
+      operationId: verificarHealth
+      responses:
+        "200":
+          description: Aplicação respondendo
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+  /api/fornecedores/{id}:
+    get:
+      tags:
+      - Fornecedores
+      summary: Consultar fornecedor por ID
+      description: Retorna os dados do fornecedor existente. Não há operações públicas
+        de alteração ou exclusão de fornecedor neste projeto.
+      operationId: consultarFornecedor
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FornecedorResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/fornecedores/abc
+                    fields: {}
+        "404":
+          description: Fornecedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Fornecedor não encontrado
+                    path: /api/fornecedores/1
+                    fields: {}
+  /api/vendas/{vendaId}/itens/{itemId}:
+    delete:
+      tags:
+      - Vendas
+      summary: Remover item
+      description: Somente ABERTA; item deve pertencer à venda. Exclusão do item sem
+        efeito no estoque. Comandos usam bloqueio pessimista transacional; podem aguardar
+        outra transação. Timeout/deadlock retorna 409 sem retry automático.
+      operationId: removerItemVenda
+      parameters:
+      - name: vendaId
+        in: path
+        description: Venda aberta
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: itemId
+        in: path
+        description: Item pertencente à venda
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: "Item excluído, sem corpo"
+        "400":
+          description: "Dados, parâmetros ou transição comercial inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 400
+                    error: Bad Request
+                    message: Somente vendas abertas podem ser alteradas
+                    path: /api/vendas/1/itens/1
+                    fields: {}
+        "404":
+          description: Recurso ou referência inexistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Exemplo de um cenário possível; mensagens de Bean Validation
+                    usam pt-BR
+                  value:
+                    timestamp: 2026-11-05T12:00:00
+                    status: 404
+                    error: Not Found
+                    message: Venda não encontrada
+                    path: /api/vendas/1/itens/1
+                    fields: {}
+        "409":
+          description: Conflito concorrente (timeout ou deadlock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Timeout ou deadlock; nenhuma baixa parcial é confirmada
+                  value:
+                    status: 409
+                    message: Conflito concorrente; operação não concluída
+                    error: Conflict
+                    path: /api/vendas/1/itens/1
+                    timestamp: 2026-11-05T12:00:00
+                    fields: {}
+components:
+  schemas:
+    PessoaRequest:
+      type: object
+      description: Criação/alteração da identidade. CPF com DVs válidos e sem pontuação;
+        data/status controlados pelo servidor.
+      properties:
+        nome:
+          type: string
+          description: Nome civil obrigatório; não aceita vazio ou somente espaços
+          example: Pessoa Exemplo
+          maxLength: 150
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        email:
+          type: string
+          format: email
+          description: "E-mail único, normalizado em minúsculas; limite de 180 caracteres\
+            \ também após normalização; não aceita vazio ou somente espaços"
+          example: pessoa@example.com
+          maxLength: 180
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        cpf:
+          type: string
+          description: "CPF de 11 dígitos, matematicamente válido; não prova existê\
+            ncia ou titularidade"
+          example: "52998224725"
+          maxLength: 11
+          minLength: 11
+          pattern: "[0-9]{11}"
+      required:
+      - cpf
+      - email
+      - nome
+    ApiError:
+      type: object
+      description: Erro HTTP padronizado; campos correspondem ao ApiExceptionHandler
+        real.
+      properties:
+        timestamp:
+          type: string
+          format: local-date-time
+          description: "Data e hora locais do servidor, sem offset; formato ISO LocalDateTime"
+          example: 2026-11-04T18:30:00
+        status:
+          type: integer
+          format: int32
+          description: Código de status HTTP
+          example: 400
+          maximum: 599
+          minimum: 100
+        error:
+          type: string
+          description: Nome do status HTTP
+          example: Bad Request
+        message:
+          type: string
+          description: "Mensagem da validação, regra de negócio ou recurso inexistente"
+          example: Unidades disponíveis insuficientes
+        path:
+          type: string
+          description: Caminho HTTP da requisição que falhou
+          example: /api/jogos/1/estoque/saidas
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Mensagens por campo em erros de validação; objeto vazio nos
+            demais casos
+          example: {}
+      required:
+      - error
+      - fields
+      - message
+      - path
+      - status
+      - timestamp
+    PessoaResponse:
+      type: object
+      description: Identidade civil; sem credenciais.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador
+          example: 1
+        nome:
+          type: string
+          description: Nome
+          example: Pessoa Exemplo
+        email:
+          type: string
+          description: E-mail normalizado
+          example: pessoa@example.com
+        cpf:
+          type: string
+          description: CPF para este caso de uso cadastral
+          example: "52998224725"
+        dataCadastro:
+          type: string
+          format: date
+          description: Data gerada pelo servidor
+          example: 2026-11-05
+        status:
+          type: string
+          description: Estado da pessoa
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+    StatusRequest:
+      type: object
+      description: Ativação ou inativação; mantém o registro e seus relacionamentos.
+      properties:
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - status
+    JogoAtualizacaoRequest:
+      type: object
+      description: "Representação editável completa. Não altera código, saldo, data\
+        \ de cadastro nem status."
+      properties:
+        nome:
+          type: string
+          description: "Novo nome do jogo; obrigatório, não aceita texto vazio ou\
+            \ formado somente por espaços em branco, inclusive após normalização trim"
+          example: Reino das Estrelas — Edição Completa
+          maxLength: 150
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        preco:
+          type: number
+          description: Novo preço; até 16 dígitos inteiros e 2 decimais
+          example: 149.9
+          maximum: 9999999999999999.99
+          minimum: 0
+          multipleOf: 0.01
+        estoqueMinimo:
+          type: number
+          description: Novo mínimo; até 15 dígitos inteiros e 3 decimais
+          example: 3.0
+          maximum: 999999999999999.999
+          minimum: 0
+          multipleOf: 0.001
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador positivo do gênero de destino
+          example: 1
+          minimum: 1
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Identificador positivo opcional; null ou ausência remove a
+            associação
+          example: null
+          minimum: 1
+      required:
+      - estoqueMinimo
+      - generoId
+      - nome
+      - preco
+    JogoResponse:
+      type: object
+      description: "Representação completa de jogo, incluindo campos protegidos e\
+        \ associações."
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        codigo:
+          type: string
+          description: "Código único, imutável depois do cadastro"
+          example: JOGO-ESTRELAS-001
+        nome:
+          type: string
+          description: Nome comercial do jogo
+          example: Reino das Estrelas
+        preco:
+          type: number
+          description: "Preço por unidade, não negativo"
+          example: 149.9
+          minimum: 0
+        estoqueMinimo:
+          type: number
+          description: Quantidade mínima usada para indicar reposição
+          example: 3.0
+          minimum: 0
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador de um gênero existente
+          example: 1
+        generoNome:
+          type: string
+          description: Nome do gênero associado
+          example: Aventura
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Fornecedor opcional; null ou ausência remove/dispensa a associação
+          example: 1
+        fornecedorRazaoSocial:
+          type:
+          - string
+          - "null"
+          description: Razão social opcional; null quando não há fornecedor
+          example: Distribuidora Exemplo de Jogos
+        unidadesDisponiveis:
+          type: number
+          description: Saldo atual; modificado somente por entrada ou saída
+          example: 10.0
+          minimum: 0
+        dataCadastro:
+          type: string
+          format: date
+          description: Data local gerada pelo servidor; preservada em todas as atualizações
+          example: 2026-11-04
+          readOnly: true
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - codigo
+      - dataCadastro
+      - estoqueMinimo
+      - generoId
+      - generoNome
+      - id
+      - nome
+      - preco
+      - status
+      - unidadesDisponiveis
+    GeneroJogoAtualizacaoRequest:
+      type: object
+      description: Atualização do nome do gênero; não altera o status.
+      properties:
+        nome:
+          type: string
+          description: "Nome do gênero; atualização permite até 120 caracteres; obrigató\
+            rio, não aceita texto vazio ou formado somente por espaços em branco,\
+            \ inclusive após normalização trim"
+          example: Aventura e exploração
+          maxLength: 120
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+      required:
+      - nome
+    GeneroJogoResponse:
+      type: object
+      description: Representação de gênero usada nas consultas e alterações.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        nome:
+          type: string
+          description: Nome normalizado do gênero
+          example: Aventura
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - id
+      - nome
+      - status
+    ColaboradorAtualizacaoRequest:
+      type: object
+      description: Atualiza matrícula e função; preserva pessoa e admissão.
+      properties:
+        matricula:
+          type: string
+          description: Matrícula única; não aceita vazio ou somente espaços
+          example: VEN-002
+          maxLength: 30
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        funcao:
+          type: string
+          description: Função profissional
+          enum:
+          - VENDEDOR
+          - ESTOQUISTA
+          - GERENTE
+          - ADMINISTRATIVO
+          example: GERENTE
+      required:
+      - funcao
+      - matricula
+    ColaboradorResponse:
+      type: object
+      description: "Vínculo profissional, sem perfil de acesso."
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID do colaborador
+          example: 1
+        pessoaId:
+          type: integer
+          format: int64
+          description: Identidade central
+          example: 1
+        nome:
+          type: string
+          description: Nome da pessoa
+          example: Pessoa Exemplo
+        status:
+          type: string
+          description: Estado da pessoa
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+        matricula:
+          type: string
+          description: Matrícula única
+          example: VEN-001
+        funcao:
+          type: string
+          description: Função profissional
+          enum:
+          - VENDEDOR
+          - ESTOQUISTA
+          - GERENTE
+          - ADMINISTRATIVO
+          example: VENDEDOR
+        dataAdmissao:
+          type: string
+          format: date
+          description: Data do vínculo
+          example: 2026-11-05
+    ClienteAtualizacaoRequest:
+      type: object
+      description: Atualiza somente o telefone; pessoa permanece inalterada.
+      properties:
+        telefone:
+          type:
+          - string
+          - "null"
+          description: "Telefone opcional, até 30 caracteres"
+          example: (11) 98888-0000
+          maxLength: 30
+          minLength: 0
+    ClienteResponse:
+      type: object
+      description: "Papel comercial de cliente, referenciando Pessoa."
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID do cliente
+          example: 1
+        pessoaId:
+          type: integer
+          format: int64
+          description: Identidade central
+          example: 1
+        nome:
+          type: string
+          description: Nome da pessoa
+          example: Pessoa Exemplo
+        status:
+          type: string
+          description: Estado da pessoa
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+        telefone:
+          type:
+          - string
+          - "null"
+          description: Contato opcional
+          example: (11) 99999-0000
+    VendaRequest:
+      type: object
+      description: Abre venda sem baixar estoque; participantes devem estar aptos.
+      properties:
+        clienteId:
+          type: integer
+          format: int64
+          description: Cliente ativo
+          example: 1
+        vendedorId:
+          type: integer
+          format: int64
+          description: Colaborador VENDEDOR/GERENTE ativo
+          example: 1
+      required:
+      - clienteId
+      - vendedorId
+    ItemVendaResponse:
+      type: object
+      description: Snapshot de preço; valor atual do jogo não altera este item.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID do item
+          example: 1
+        jogoId:
+          type: integer
+          format: int64
+          description: Jogo vendido
+          example: 1
+        jogoNome:
+          type: string
+          description: Nome do jogo
+          example: Reino das Estrelas
+        quantidade:
+          type: number
+          description: Quantidade
+          example: 2
+        valorUnitario:
+          type: number
+          description: Preço histórico copiado na inclusão
+          example: 100
+        subtotal:
+          type: number
+          description: "Quantidade x preço histórico, HALF_UP em 2 casas"
+          example: 200
+    VendaResponse:
+      type: object
+      description: "Detalhe com itens e total derivado, não persistido em coluna."
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da venda
+          example: 1
+        clienteId:
+          type: integer
+          format: int64
+          description: Cliente
+          example: 1
+        clienteNome:
+          type: string
+          description: Nome do comprador
+          example: Pessoa Exemplo
+        vendedorId:
+          type: integer
+          format: int64
+          description: Vendedor
+          example: 1
+        vendedorNome:
+          type: string
+          description: Nome do vendedor
+          example: Pessoa Exemplo
+        dataVenda:
+          type: string
+          format: local-date-time
+          description: Data/hora local do servidor
+          example: 2026-11-05T12:00:00
+        status:
+          type: string
+          description: "ABERTA, FINALIZADA ou CANCELADA"
+          enum:
+          - ABERTA
+          - FINALIZADA
+          - CANCELADA
+          example: ABERTA
+        itens:
+          type: array
+          description: Itens; apenas o detalhe carrega esta coleção
+          items:
+            $ref: "#/components/schemas/ItemVendaResponse"
+        total:
+          type: number
+          description: "Soma dos subtotais históricos, duas casas"
+          example: 200
+    ItemVendaRequest:
+      type: object
+      description: Inclusão sem baixa de estoque; preço vem do jogo e não pode ser
+        informado pelo cliente.
+      properties:
+        jogoId:
+          type: integer
+          format: int64
+          description: Jogo ativo existente
+          example: 1
+        quantidade:
+          type: number
+          description: Quantidade positiva; até 15 inteiros e 3 casas
+          example: 2
+          maximum: 999999999999999.999
+          minimum: 0.001
+          multipleOf: 0.001
+      required:
+      - jogoId
+      - quantidade
+    JogoRequest:
+      type: object
+      description: Criação de jogo ativo. A data é definida pelo servidor e não é
+        aceita neste DTO. Fornecedor opcional.
+      properties:
+        codigo:
+          type: string
+          description: "Código único escolhido no cadastro; imutável depois da criaç\
+            ão; obrigatório, não aceita texto vazio ou formado somente por espaços\
+            \ em branco, inclusive após normalização trim"
+          example: JOGO-ESTRELAS-001
+          maxLength: 50
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        nome:
+          type: string
+          description: "Nome do jogo; obrigatório, não aceita texto vazio ou formado\
+            \ somente por espaços em branco, inclusive após normalização trim"
+          example: Reino das Estrelas
+          maxLength: 150
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        unidadesDisponiveis:
+          type: number
+          description: Saldo inicial não negativo; depois muda somente por movimentação
+          example: 10.0
+          minimum: 0
+        preco:
+          type: number
+          description: "Preço por unidade, não negativo"
+          example: 149.9
+          minimum: 0
+        estoqueMinimo:
+          type: number
+          description: Quantidade mínima usada para indicar reposição
+          example: 3.0
+          minimum: 0
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador de um gênero existente
+          example: 1
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Fornecedor opcional; null ou ausência remove/dispensa a associação
+          example: null
+      required:
+      - codigo
+      - estoqueMinimo
+      - generoId
+      - nome
+      - preco
+      - unidadesDisponiveis
+    MovimentacaoEstoqueRequest:
+      type: object
+      description: "Quantidade positiva para movimento acumulativo, não idempotente."
+      properties:
+        quantidade:
+          type: number
+          description: Quantidade maior que zero; até 15 dígitos inteiros e 3 decimais
+          example: 5.0
+          exclusiveMinimum: 0
+          maximum: 999999999999999.999
+          multipleOf: 0.001
+      required:
+      - quantidade
+    GeneroJogoRequest:
+      type: object
+      description: "Cadastro de gênero ativo com nome único, ignorando caixa e espaç\
+        os externos."
+      properties:
+        nome:
+          type: string
+          description: "Nome do gênero; cadastro permite até 100 caracteres; obrigató\
+            rio, não aceita texto vazio ou formado somente por espaços em branco,\
+            \ inclusive após normalização trim"
+          example: Aventura
+          maxLength: 100
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+      required:
+      - nome
+    FornecedorRequest:
+      type: object
+      description: Cadastro de fornecedor ativo; os dados do exemplo são fictícios.
+      properties:
+        razaoSocial:
+          type: string
+          description: "Razão social do fornecedor fictício; obrigatório, não aceita\
+            \ texto vazio ou formado somente por espaços em branco, inclusive apó\
+            s normalização trim"
+          example: Distribuidora Exemplo de Jogos
+          maxLength: 150
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        cnpj:
+          type: string
+          description: "Identificador de 14 dígitos, único; exemplo deliberadamente\
+            \ fictício"
+          example: "11222333000181"
+          maxLength: 14
+          minLength: 14
+          pattern: "\\d{14}"
+      required:
+      - cnpj
+      - razaoSocial
+    FornecedorResponse:
+      type: object
+      description: Representação pública de fornecedor.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        razaoSocial:
+          type: string
+          description: Razão social do fornecedor fictício
+          example: Distribuidora Exemplo de Jogos
+        cnpj:
+          type: string
+          description: "CNPJ do fornecedor fictício, com dígitos verificadores vá\
+            lidos nos novos cadastros"
+          example: "11222333000181"
+          pattern: "\\d{14}"
+        status:
+          type: string
+          description: Situação do cadastro; novos fornecedores são cadastrados como
+            ATIVO. A API atual não oferece alteração de status do fornecedor
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - cnpj
+      - id
+      - razaoSocial
+      - status
+    ColaboradorRequest:
+      type: object
+      description: Vínculo com pessoa ativa. Função profissional não é autorização.
+      properties:
+        pessoaId:
+          type: integer
+          format: int64
+          description: Pessoa existente ativa
+          example: 1
+        matricula:
+          type: string
+          description: Matrícula única; não aceita vazio ou somente espaços
+          example: VEN-001
+          maxLength: 30
+          minLength: 1
+          pattern: "^(?![\\u0000-\\u0020]*[\\u0009-\\u000D\\u001C-\\u0020\\u1680\\\
+            u2000-\\u2006\\u2008-\\u200A\\u2028\\u2029\\u205F\\u3000]*[\\u0000-\\\
+            u0020]*(?![\\s\\S]))[\\s\\S]+(?![\\s\\S])"
+        funcao:
+          type: string
+          description: Função profissional; somente VENDEDOR/GERENTE vendem
+          enum:
+          - VENDEDOR
+          - ESTOQUISTA
+          - GERENTE
+          - ADMINISTRATIVO
+          example: VENDEDOR
+        dataAdmissao:
+          type: string
+          format: date
+          description: Data obrigatória do vínculo
+          example: 2026-11-05
+      required:
+      - dataAdmissao
+      - funcao
+      - matricula
+      - pessoaId
+    ClienteRequest:
+      type: object
+      description: "Cria papel para pessoa ativa, preservando identidade única."
+      properties:
+        pessoaId:
+          type: integer
+          format: int64
+          description: Pessoa existente e ativa
+          example: 1
+        telefone:
+          type:
+          - string
+          - "null"
+          description: Telefone opcional; vazio remove contato
+          example: (11) 99999-0000
+          maxLength: 30
+          minLength: 0
+      required:
+      - pessoaId
+    PaginaResponseVendaResumoResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/VendaResumoResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    VendaResumoResponse:
+      type: object
+      description: Página de vendas sem coleção nem total calculado; evita fetch de
+        itens na paginação.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da venda
+          example: 1
+        clienteId:
+          type: integer
+          format: int64
+          description: Cliente
+          example: 1
+        clienteNome:
+          type: string
+          description: Comprador
+          example: Pessoa Exemplo
+        vendedorId:
+          type: integer
+          format: int64
+          description: Vendedor
+          example: 1
+        vendedorNome:
+          type: string
+          description: Vendedor
+          example: Pessoa Exemplo
+        dataVenda:
+          type: string
+          format: local-date-time
+          description: Data/hora da venda
+          example: 2026-11-05T12:00:00
+        status:
+          type: string
+          description: Estado da venda
+          enum:
+          - ABERTA
+          - FINALIZADA
+          - CANCELADA
+          example: ABERTA
+    PaginaResponsePessoaResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/PessoaResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    PaginaResponseJogoResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/JogoResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    PaginaResponseGeneroJogoResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/GeneroJogoResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    PaginaResponseColaboradorResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/ColaboradorResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    PaginaResponseClienteResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/ClienteResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima

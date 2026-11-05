@@ -101,4 +101,10 @@ A Aula 09 foi publicada no commit `96fd68ff7964bc8e351d54c9a097be4110fe3e7e`, co
 
 O [guia da Aula 10](docs/aula-10-pessoas-vendas.md) reúne modelagem por composição, validação fiscal, migração 005, 20 novas operações, preço histórico e finalização transacional. Consulte o [contrato atual](docs/aula-10-openapi.yaml), a [coleção completa](postman/Jogos-Aula10.postman_collection.json), as [evidências](docs/aula-10-evidencias.md) e a [auditoria](docs/aula-10-auditoria.md).
 
-A Aula 10 permanece exclusivamente local, sem commit, push ou tag. Exemplos e coleções devem utilizar o banco de testes; desenvolvimento e produção não foram migrados nesta execução. O contrato e as evidências da Aula 09 continuam identificados como históricos.
+A Aula 10 foi publicada no commit `0a7b201c5b61ae13a2832f734aac70bcd196e301`, tag `aula-10-pessoas-vendas`. Seu contrato e suas evidências são históricos. Exemplos e coleções devem utilizar o banco de testes.
+
+## Aula 11 — Concorrência de estoque
+
+O [guia da Aula 11](docs/aula-11-concorrencia.md) documenta locking pessimista, ordem de aquisição, cuidados com refresh e atualizações de cadastro, diagnóstico e atividades. Consulte as [evidências reais](docs/aula-11-evidencias.md), a [matriz de conformidade](docs/aula-11-auditoria.md), o [contrato atual](docs/aula-11-openapi.yaml) e o [inventário](docs/aula-11-arquivos.md). Os contratos das Aulas 09 e 10 foram preservados.
+
+A Aula 11 permanece exclusivamente local, sem staging, commit, push ou tag. Use somente jogos_test nas execuções de escrita. Participação e apresentação em dupla dependem de comprovação humana.

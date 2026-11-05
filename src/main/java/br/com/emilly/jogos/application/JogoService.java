@@ -24,15 +24,18 @@ public class JogoService {
     private final JogoRepository jogoRepository;
     private final GeneroJogoRepository generoRepository;
     private final FornecedorRepository fornecedorRepository;
+    private final BloqueioEstoque bloqueio;
 
     public JogoService(
             JogoRepository jogoRepository,
             GeneroJogoRepository generoRepository,
-            FornecedorRepository fornecedorRepository) {
+            FornecedorRepository fornecedorRepository,
+            BloqueioEstoque bloqueio) {
 
         this.jogoRepository = jogoRepository;
         this.generoRepository = generoRepository;
         this.fornecedorRepository = fornecedorRepository;
+        this.bloqueio = bloqueio;
     }
 
     @Transactional
@@ -106,14 +109,14 @@ public class JogoService {
 
     @Transactional
     public Jogo entrada(Long id, BigDecimal quantidade) {
-        var jogo = buscarPorId(id);
+        var jogo = buscarParaMovimento(id);
         jogo.receberUnidades(quantidade);
         return jogo;
     }
 
     @Transactional
     public Jogo saida(Long id, BigDecimal quantidade) {
-        var jogo = buscarPorId(id);
+        var jogo = buscarParaMovimento(id);
         jogo.retirarUnidades(quantidade);
         return jogo;
     }
@@ -139,10 +142,15 @@ public class JogoService {
             Long jogoId,
             BigDecimal quantidade) {
 
-        Jogo jogo = jogoRepository.findById(jogoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Jogo não encontrado"));
+        entrada(jogoId, quantidade);
+    }
 
-        jogo.receberUnidades(quantidade);
+    private Jogo buscarParaMovimento(Long id) {
+        var jogo = buscarPorId(id);
+        bloqueio.adquirir(jogo);
+        // Refresh pode recolocar proxies lazy. A resposta continua utilizável com OSIV=false.
+        org.hibernate.Hibernate.initialize(jogo.getGenero());
+        org.hibernate.Hibernate.initialize(jogo.getFornecedor());
+        return jogo;
     }
 }

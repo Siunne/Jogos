@@ -214,8 +214,8 @@ class OpenApiDocumentationTest {
             Map.entry("get /api/jogos", Set.of("200", "400")),
             Map.entry("put /api/jogos/{id}", Set.of("200", "400", "404", "409")),
             Map.entry("put /api/jogos/{id}/status", Set.of("200", "400", "404")),
-            Map.entry("post /api/jogos/{id}/estoque/entradas", Set.of("200", "400", "404")),
-            Map.entry("post /api/jogos/{id}/estoque/saidas", Set.of("200", "400", "404")),
+            Map.entry("post /api/jogos/{id}/estoque/entradas", Set.of("200", "400", "404", "409")),
+            Map.entry("post /api/jogos/{id}/estoque/saidas", Set.of("200", "400", "404", "409")),
             Map.entry("delete /api/jogos/{id}", Set.of("204", "400", "404", "409")),
             Map.entry("post /api/fornecedores", Set.of("201", "400", "409")),
             Map.entry("get /api/fornecedores", Set.of("200")),
@@ -238,9 +238,9 @@ class OpenApiDocumentationTest {
             Map.entry("get /api/vendas/{id}", Set.of("200", "400", "404")),
             Map.entry("get /api/vendas", Set.of("200", "400")),
             Map.entry("post /api/vendas/{id}/itens", Set.of("200", "400", "404", "409")),
-            Map.entry("delete /api/vendas/{vendaId}/itens/{itemId}", Set.of("204", "400", "404")),
-            Map.entry("post /api/vendas/{id}/finalizacao", Set.of("200", "400", "404")),
-            Map.entry("post /api/vendas/{id}/cancelamento", Set.of("200", "400", "404")));
+            Map.entry("delete /api/vendas/{vendaId}/itens/{itemId}", Set.of("204", "400", "404", "409")),
+            Map.entry("post /api/vendas/{id}/finalizacao", Set.of("200", "400", "404", "409")),
+            Map.entry("post /api/vendas/{id}/cancelamento", Set.of("200", "400", "404", "409")));
     operacoes(doc)
         .forEach(
             (path, op) -> {
@@ -643,7 +643,7 @@ class OpenApiDocumentationTest {
   void contratoExportadoEReproduzivelETodasAsReferenciasResolvem() throws Exception {
     var doc = documento();
     var exportado =
-        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-10-openapi.yaml")));
+        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-11-openapi.yaml")));
     // A URL de servidor depende da porta usada na captura; o contrato não depende dela.
     for (String part : List.of("openapi", "info", "paths", "components", "tags", "externalDocs")) {
       assertEquals(doc.path(part), exportado.path(part), part);

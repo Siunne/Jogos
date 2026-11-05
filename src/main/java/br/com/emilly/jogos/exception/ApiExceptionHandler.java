@@ -15,6 +15,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiExceptionHandler {
 
   @ExceptionHandler({
+    org.springframework.dao.PessimisticLockingFailureException.class,
+    jakarta.persistence.PessimisticLockException.class,
+    jakarta.persistence.LockTimeoutException.class
+  })
+  public ResponseEntity<ApiError> tratarConcorrencia(
+      RuntimeException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            criarErro(
+                HttpStatus.CONFLICT,
+                "Conflito concorrente; operação não concluída",
+                request.getRequestURI(),
+                Map.of()));
+  }
+
+  @ExceptionHandler({
     RecursoEmUsoException.class,
     org.springframework.dao.DataIntegrityViolationException.class
   })

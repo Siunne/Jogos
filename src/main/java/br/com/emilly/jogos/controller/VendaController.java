@@ -233,7 +233,7 @@ public class VendaController {
       description =
           "Uma única transação valida participantes, jogos ativos e saldos; baixa todos os jogos e"
               + " marca FINALIZADA. Venda vazia ou repetição falham. Rollback impede baixa parcial."
-              + " Sem locks; concorrência permanece limitação.")
+              + " PESSIMISTIC_WRITE recarrega saldos antes da conferência; jogos são bloqueados por ID crescente até commit ou rollback. O preço histórico dos itens é preservado.")
   @ApiResponses({
     @ApiResponse(
         responseCode = "200",

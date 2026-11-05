@@ -218,9 +218,9 @@ class OpenApiComercialTest {
   }
 
   @Test
-  void contratoAula10GeradoEquivaleAoYamlEHistoricoAula09PermaneceIdentificavel() throws Exception {
+  void contratoAtualEquivaleAoYamlEHistoricoAula09PermaneceIdentificavel() throws Exception {
     var d = doc();
-    var atual = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-10-openapi.yaml")));
+    var atual = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-11-openapi.yaml")));
     for (String field : List.of("info", "paths", "components", "tags", "externalDocs", "openapi"))
       assertEquals(d.path(field), atual.path(field), field);
     var antigo = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-09-openapi.yaml")));
