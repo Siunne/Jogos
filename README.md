@@ -88,3 +88,11 @@ A documentação da Aula 05 está disponível em:
 `docs/aula-05-repositories-servicos-transacoes.md`
 
 Ao final da aula, foram executados 20 testes com sucesso.
+
+## Aula 09 — OpenAPI
+
+O contrato da Jogos API está documentado com springdoc 3.0.3, compatível com Spring Boot 4.0.8. A [documentação da Aula 09](docs/aula-09-openapi.md) contém execução segura, matriz das 18 operações, ficha de contrato, laboratório visual, segurança e resultados reais. Consulte também o [YAML gerado](docs/aula-09-openapi.yaml), as [evidências](docs/aula-09-evidencias.md) e a [auditoria](docs/aula-09-auditoria.md).
+
+Em dev/test: `/v3/api-docs`, `/v3/api-docs.yaml` e `/swagger-ui.html`. Em prod, os endpoints documentais ficam desabilitados. Para a instância segura de testes e as variáveis locais necessárias, siga o guia antes de executar os exemplos.
+
+A Aula 09 permanece apenas nos arquivos locais, aguardando revisão e autorização explícita da autora para operações de Git.

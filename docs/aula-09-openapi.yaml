@@ -1,0 +1,1650 @@
+openapi: 3.1.0
+info:
+  title: Jogos API
+  description: "API didática para cadastro de jogos, gêneros e fornecedores, movimentaç\
+    ões de estoque e pesquisas com filtros, paginação e ordenação."
+  contact:
+    name: Projeto acadêmico Jogos — Sistemas de Informação
+  version: 1.0.0
+externalDocs:
+  description: Repositório e documentação do projeto Jogos
+  url: https://github.com/Siunne/Jogos
+servers:
+- url: http://localhost:18080
+  description: Generated server url
+tags:
+- name: Jogos
+  description: "Cadastro, manutenção, pesquisa paginada e movimentação de estoque\
+    \ de jogos."
+- name: Infraestrutura
+  description: Verificação simples da disponibilidade HTTP da aplicação.
+- name: Fornecedores
+  description: Cadastro e consultas dos fornecedores opcionais dos jogos.
+- name: Gêneros de jogos
+  description: "Cadastro, consulta, pesquisa, status e exclusão de gêneros de jogos."
+paths:
+  /api/jogos/{id}:
+    get:
+      tags:
+      - Jogos
+      summary: Consultar jogo por ID
+      description: "Retorna os dados completos e associações para consulta ou preenchimento\
+        \ do formulário. Código, saldo, data e status são apresentados, mas não pertencem\
+        \ ao PUT geral."
+      operationId: consultarJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/jogos/abc
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+    put:
+      tags:
+      - Jogos
+      summary: Alterar jogo
+      description: "Substitui nome, preço, estoque mínimo, gênero e fornecedor. Preserva\
+        \ código, saldo, data de cadastro e status. Fornecedor null ou ausente remove\
+        \ a associação. A troca de gênero mantém os dois lados da associação. PUT\
+        \ idempotente."
+      operationId: alterarJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: Representação editável completa; gênero obrigatório e fornecedor
+          opcional.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JogoAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Dados ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1
+                    fields:
+                      nome: não deve estar em branco
+        "404":
+          description: "Jogo, gênero ou fornecedor não encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+        "409":
+          description: Conflito de integridade detectado pelo banco
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Operação em conflito com a integridade dos dados
+                    path: /api/jogos/1
+                    fields: {}
+    delete:
+      tags:
+      - Jogos
+      summary: Excluir jogo
+      description: "Remove fisicamente o jogo. Sucesso retorna 204 sem corpo; consulta\
+        \ posterior retorna 404. Conflitos de integridade, caso detectados pelo banco,\
+        \ retornam 409. Não existe regra adicional de jogo em uso neste domínio."
+      operationId: excluirJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "204":
+          description: "Exclusão concluída, sem corpo"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/jogos/abc
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1
+                    fields: {}
+        "409":
+          description: Conflito de integridade detectado pelo banco
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Operação em conflito com a integridade dos dados
+                    path: /api/jogos/1
+                    fields: {}
+  /api/jogos/{id}/status:
+    put:
+      tags:
+      - Jogos
+      summary: Alterar status do jogo
+      description: Ativa ou inativa o jogo sem excluir o cadastro nem alterar saldo
+        ou data. Alterar status não equivale a exclusão física.
+      operationId: alterarStatusJogo
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Status obrigatório: ATIVO ou INATIVO."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Status ausente/inválido ou identificador inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/jogos/1/status
+                    fields: {}
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/status
+                    fields: {}
+  /api/generos/{id}:
+    get:
+      tags:
+      - Gêneros de jogos
+      summary: Consultar gênero por ID
+      description: Retorna o gênero com nome e status para consulta e preenchimento
+        do formulário de alteração.
+      operationId: consultarGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/generos/abc
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+    put:
+      tags:
+      - Gêneros de jogos
+      summary: Alterar gênero
+      description: "Substitui o nome do gênero, normalizando espaços externos e verificando\
+        \ duplicidade sem considerar o próprio ID. PUT idempotente; preserva status."
+      operationId: alterarGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Representação editável: nome obrigatório, até 120 caracteres."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneroJogoAtualizacaoRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Nome ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/generos/1
+                    fields:
+                      nome: não deve estar em branco
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+        "409":
+          description: Nome normalizado já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Nome do gênero já cadastrado
+                    path: /api/generos/1
+                    fields: {}
+    delete:
+      tags:
+      - Gêneros de jogos
+      summary: Excluir gênero
+      description: Exclui fisicamente somente gênero sem jogos. Gênero em uso gera
+        409; para mantê-lo e preservar vínculos use a operação de status. Sucesso
+        não possui corpo.
+      operationId: excluirGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "204":
+          description: "Exclusão concluída, sem corpo"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/generos/abc
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1
+                    fields: {}
+        "409":
+          description: Gênero possui jogos ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Gênero não pode ser excluído porque possui jogos
+                    path: /api/generos/1
+                    fields: {}
+  /api/generos/{id}/status:
+    put:
+      tags:
+      - Gêneros de jogos
+      summary: Alterar status do gênero
+      description: Ativa ou inativa sem excluir fisicamente ou remover jogos associados.
+        Repetir o mesmo status mantém o estado final.
+      operationId: alterarStatusGenero
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Status obrigatório: ATIVO ou INATIVO."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Status ausente/inválido ou identificador inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: JSON inválido ou malformado
+                    path: /api/generos/1/status
+                    fields: {}
+        "404":
+          description: Gênero não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/generos/1/status
+                    fields: {}
+  /api/jogos:
+    get:
+      tags:
+      - Jogos
+      summary: Pesquisar jogos
+      description: "Combina nome, status, generoId, fornecedorId e abaixoEstoqueMinimo\
+        \ no banco. Não existe filtro por preço. Página base zero, padrão 20, máximo\
+        \ 100. Ordenação permitida: id, nome, codigo, preco, estoqueMinimo, unidadesDisponiveis,\
+        \ dataCadastro, status. Retorna os sete campos de PaginaResponse."
+      operationId: pesquisarJogos
+      parameters:
+      - name: nome
+        in: query
+        description: "Trecho do nome, sem diferenciar caixa; espaços externos são\
+          \ ignorados"
+        required: false
+        schema:
+          type: string
+        example: estrelas
+      - name: status
+        in: query
+        description: Filtra por ATIVO ou INATIVO; outro valor retorna 400
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+        example: ATIVO
+      - name: generoId
+        in: query
+        description: Identificador exato do gênero; ausência não restringe a consulta
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      - name: fornecedorId
+        in: query
+        description: Identificador exato do fornecedor; ausência não restringe a consulta
+        required: false
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      - name: abaixoEstoqueMinimo
+        in: query
+        description: true exige saldo estritamente menor que o mínimo; false ou ausência
+          não restringe o saldo
+        required: false
+        schema:
+          type: boolean
+        example: true
+      - name: page
+        in: query
+        description: Página iniciada em zero; valor negativo ou não inteiro retorna
+          400
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: "Tamanho da página: padrão 20, entre 1 e 100; fora do intervalo\
+          \ retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+        example: 20
+      - name: sort
+        in: query
+        description: "Ordenação campo,asc ou campo,desc; repetir sort para vários\
+          \ campos. Padrão id,asc. Campos permitidos descritos na operação; caminhos\
+          \ arbitrários retornam 400"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "nome,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseJogoResponse"
+        "400":
+          description: "Filtro, paginação ou ordenação inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/jogos
+                    fields: {}
+    post:
+      tags:
+      - Jogos
+      summary: Cadastrar jogo
+      description: Cria jogo ATIVO com gênero existente e fornecedor opcional. A data
+        de cadastro é definida pelo servidor; não é enviada pelo cliente. Código é
+        único; saldo inicial e mínimo não podem ser negativos.
+      operationId: cadastrarJogo
+      requestBody:
+        description: Dados de criação sem dataCadastro e status; fornecedorId pode
+          ser null ou omitido.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JogoRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Dados ou JSON inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos
+                    fields:
+                      nome: O nome é obrigatório
+        "404":
+          description: Gênero ou fornecedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Gênero de jogo não encontrado
+                    path: /api/jogos
+                    fields: {}
+        "409":
+          description: Código já cadastrado ou conflito de integridade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Código do jogo já cadastrado
+                    path: /api/jogos
+                    fields: {}
+  /api/jogos/{id}/estoque/saidas:
+    post:
+      tags:
+      - Jogos
+      summary: Registrar saída de estoque
+      description: Subtrai quantidade positiva do saldo. Operação acumulativa e não
+        idempotente. Saldo insuficiente retorna 400 sem alterar o saldo; o estoque
+        nunca pode ficar negativo. Quantidades inválidas são rejeitadas.
+      operationId: saidaEstoque
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: Quantidade positiva que não pode superar o saldo disponível.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovimentacaoEstoqueRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Quantidade inválida ou unidades disponíveis insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1/estoque/saidas
+                    fields:
+                      quantidade: deve ser maior que 0
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/estoque/saidas
+                    fields: {}
+  /api/jogos/{id}/estoque/entradas:
+    post:
+      tags:
+      - Jogos
+      summary: Registrar entrada de estoque
+      description: "Soma quantidade positiva ao saldo atual. Operação não idempotente\
+        \ e acumulativa: repetir a chamada repete o efeito. Quantidade zero, negativa,\
+        \ ausente ou com mais de três casas decimais é rejeitada."
+      operationId: entradaEstoque
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      requestBody:
+        description: "Quantidade positiva, com no máximo três casas decimais."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovimentacaoEstoqueRequest"
+        required: true
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JogoResponse"
+        "400":
+          description: Quantidade ou identificador inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/jogos/1/estoque/entradas
+                    fields:
+                      quantidade: deve ser maior que 0
+        "404":
+          description: Jogo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Jogo não encontrado
+                    path: /api/jogos/1/estoque/entradas
+                    fields: {}
+  /api/generos:
+    get:
+      tags:
+      - Gêneros de jogos
+      summary: Pesquisar gêneros
+      description: "Combina nome e status no banco. Página base zero, padrão 20, má\
+        ximo 100. Ordenação permitida: id, nome, status. Retorna PaginaResponse, nã\
+        o Page do Spring."
+      operationId: pesquisarGeneros
+      parameters:
+      - name: nome
+        in: query
+        description: "Trecho do nome, sem diferenciar caixa; espaços externos são\
+          \ ignorados"
+        required: false
+        schema:
+          type: string
+        example: aventura
+      - name: status
+        in: query
+        description: Filtra por ATIVO ou INATIVO; outro valor retorna 400
+        required: false
+        schema:
+          type: string
+          enum:
+          - ATIVO
+          - INATIVO
+        example: ATIVO
+      - name: page
+        in: query
+        description: Página iniciada em zero; valor negativo ou não inteiro retorna
+          400
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: "Tamanho da página: padrão 20, entre 1 e 100; fora do intervalo\
+          \ retorna 400"
+        schema:
+          type: integer
+          default: 20
+          maximum: 100
+          minimum: 1
+        example: 20
+      - name: sort
+        in: query
+        description: "Ordenação campo,asc ou campo,desc; repetir sort para vários\
+          \ campos. Padrão id,asc. Campos permitidos descritos na operação; caminhos\
+          \ arbitrários retornam 400"
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - "nome,asc"
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginaResponseGeneroJogoResponse"
+        "400":
+          description: "Filtro, paginação ou ordenação inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: page deve estar entre 0 e 2147483647
+                    path: /api/generos
+                    fields: {}
+    post:
+      tags:
+      - Gêneros de jogos
+      summary: Cadastrar gênero
+      description: Cria gênero ATIVO. Nome único após ignorar caixa e espaços externos;
+        cadastro permite até 100 caracteres.
+      operationId: cadastrarGenero
+      requestBody:
+        description: Dados do gênero; não recebe status.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneroJogoRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneroJogoResponse"
+        "400":
+          description: Nome inválido ou JSON malformado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/generos
+                    fields:
+                      nome: O nome é obrigatório
+        "409":
+          description: Nome normalizado já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: Nome do gênero já cadastrado
+                    path: /api/generos
+                    fields: {}
+  /api/fornecedores:
+    get:
+      tags:
+      - Fornecedores
+      summary: Listar fornecedores
+      description: Retorna array de fornecedores. Esta listagem não é paginada e não
+        possui filtros ou ordenação configuráveis.
+      operationId: listarFornecedores
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FornecedorResponse"
+    post:
+      tags:
+      - Fornecedores
+      summary: Cadastrar fornecedor
+      description: Cria fornecedor ATIVO com razão social e identificador único de
+        14 dígitos. Exemplos são fictícios.
+      operationId: cadastrarFornecedor
+      requestBody:
+        description: Razão social obrigatória e CNPJ de 14 dígitos.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FornecedorRequest"
+        required: true
+      responses:
+        "201":
+          description: Cadastro concluído
+          headers:
+            Location:
+              description: URI relativa do recurso criado
+              style: simple
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FornecedorResponse"
+        "400":
+          description: Dados ou JSON inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: Dados inválidos
+                    path: /api/fornecedores
+                    fields:
+                      razaoSocial: A razão social é obrigatória
+        "409":
+          description: Identificador já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro409:
+                  description: Erro409
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 409
+                    error: Conflict
+                    message: CNPJ já cadastrado
+                    path: /api/fornecedores
+                    fields: {}
+  /api/health:
+    get:
+      tags:
+      - Infraestrutura
+      summary: Verificar aplicação
+      description: Retorna o texto OK quando a aplicação atende HTTP. Não é um diagnóstico
+        completo dos serviços externos.
+      operationId: verificarHealth
+      responses:
+        "200":
+          description: Aplicação respondendo
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+  /api/fornecedores/{id}:
+    get:
+      tags:
+      - Fornecedores
+      summary: Consultar fornecedor por ID
+      description: Retorna os dados do fornecedor existente. Não há operações públicas
+        de alteração ou exclusão de fornecedor neste projeto.
+      operationId: consultarFornecedor
+      parameters:
+      - name: id
+        in: path
+        description: "Identificador do recurso, representado por Long"
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      responses:
+        "200":
+          description: Operação concluída
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FornecedorResponse"
+        "400":
+          description: Identificador não numérico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro400:
+                  description: Erro400
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 400
+                    error: Bad Request
+                    message: "Method parameter 'id': Failed to convert value of type\
+                      \ 'java.lang.String' to required type 'java.lang.Long'; For\
+                      \ input string: \"abc\""
+                    path: /api/fornecedores/abc
+                    fields: {}
+        "404":
+          description: Fornecedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              examples:
+                Erro404:
+                  description: Erro404
+                  value:
+                    timestamp: 2026-11-04T18:30:00
+                    status: 404
+                    error: Not Found
+                    message: Fornecedor não encontrado
+                    path: /api/fornecedores/1
+                    fields: {}
+components:
+  schemas:
+    JogoAtualizacaoRequest:
+      type: object
+      description: "Representação editável completa. Não altera código, saldo, data\
+        \ de cadastro nem status."
+      properties:
+        nome:
+          type: string
+          description: "Novo nome do jogo; obrigatório, não aceita texto vazio ou\
+            \ formado somente por espaços em branco"
+          example: Reino das Estrelas — Edição Completa
+          maxLength: 150
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+        preco:
+          type: number
+          description: Novo preço; até 16 dígitos inteiros e 2 decimais
+          example: 149.9
+          maximum: 9999999999999999.99
+          minimum: 0
+          multipleOf: 0.01
+        estoqueMinimo:
+          type: number
+          description: Novo mínimo; até 15 dígitos inteiros e 3 decimais
+          example: 3.0
+          maximum: 999999999999999.999
+          minimum: 0
+          multipleOf: 0.001
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador positivo do gênero de destino
+          example: 1
+          minimum: 1
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Identificador positivo opcional; null ou ausência remove a
+            associação
+          example: null
+          minimum: 1
+      required:
+      - estoqueMinimo
+      - generoId
+      - nome
+      - preco
+    ApiError:
+      type: object
+      description: Erro HTTP padronizado; campos correspondem ao ApiExceptionHandler
+        real.
+      properties:
+        timestamp:
+          type: string
+          format: local-date-time
+          description: "Data e hora locais do servidor, sem offset; formato ISO LocalDateTime"
+          example: 2026-11-04T18:30:00
+        status:
+          type: integer
+          format: int32
+          description: Código de status HTTP
+          example: 400
+          maximum: 599
+          minimum: 100
+        error:
+          type: string
+          description: Nome do status HTTP
+          example: Bad Request
+        message:
+          type: string
+          description: "Mensagem da validação, regra de negócio ou recurso inexistente"
+          example: Unidades disponíveis insuficientes
+        path:
+          type: string
+          description: Caminho HTTP da requisição que falhou
+          example: /api/jogos/1/estoque/saidas
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Mensagens por campo em erros de validação; objeto vazio nos
+            demais casos
+          example: {}
+      required:
+      - error
+      - fields
+      - message
+      - path
+      - status
+      - timestamp
+    JogoResponse:
+      type: object
+      description: "Representação completa de jogo, incluindo campos protegidos e\
+        \ associações."
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        codigo:
+          type: string
+          description: "Código único, imutável depois do cadastro"
+          example: JOGO-ESTRELAS-001
+        nome:
+          type: string
+          description: Nome comercial do jogo
+          example: Reino das Estrelas
+        preco:
+          type: number
+          description: "Preço por unidade, não negativo"
+          example: 149.9
+          minimum: 0
+        estoqueMinimo:
+          type: number
+          description: Quantidade mínima usada para indicar reposição
+          example: 3.0
+          minimum: 0
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador de um gênero existente
+          example: 1
+        generoNome:
+          type: string
+          description: Nome do gênero associado
+          example: Aventura
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Fornecedor opcional; null ou ausência remove/dispensa a associação
+          example: 1
+        fornecedorRazaoSocial:
+          type:
+          - string
+          - "null"
+          description: Razão social opcional; null quando não há fornecedor
+          example: Distribuidora Exemplo de Jogos
+        unidadesDisponiveis:
+          type: number
+          description: Saldo atual; modificado somente por entrada ou saída
+          example: 10.0
+          minimum: 0
+        dataCadastro:
+          type: string
+          format: date
+          description: Data local gerada pelo servidor; preservada em todas as atualizações
+          example: 2026-11-04
+          readOnly: true
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - codigo
+      - dataCadastro
+      - estoqueMinimo
+      - generoId
+      - generoNome
+      - id
+      - nome
+      - preco
+      - status
+      - unidadesDisponiveis
+    StatusRequest:
+      type: object
+      description: Ativação ou inativação; mantém o registro e seus relacionamentos.
+      properties:
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - status
+    GeneroJogoAtualizacaoRequest:
+      type: object
+      description: Atualização do nome do gênero; não altera o status.
+      properties:
+        nome:
+          type: string
+          description: "Nome do gênero; atualização permite até 120 caracteres; obrigató\
+            rio, não aceita texto vazio ou formado somente por espaços em branco"
+          example: Aventura e exploração
+          maxLength: 120
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+      required:
+      - nome
+    GeneroJogoResponse:
+      type: object
+      description: Representação de gênero usada nas consultas e alterações.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        nome:
+          type: string
+          description: Nome normalizado do gênero
+          example: Aventura
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - id
+      - nome
+      - status
+    JogoRequest:
+      type: object
+      description: Criação de jogo ativo. A data é definida pelo servidor e não é
+        aceita neste DTO. Fornecedor opcional.
+      properties:
+        codigo:
+          type: string
+          description: "Código único escolhido no cadastro; imutável depois da criaç\
+            ão; obrigatório, não aceita texto vazio ou formado somente por espaços\
+            \ em branco"
+          example: JOGO-ESTRELAS-001
+          maxLength: 50
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+        nome:
+          type: string
+          description: "Nome do jogo; obrigatório, não aceita texto vazio ou formado\
+            \ somente por espaços em branco"
+          example: Reino das Estrelas
+          maxLength: 150
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+        unidadesDisponiveis:
+          type: number
+          description: Saldo inicial não negativo; depois muda somente por movimentação
+          example: 10.0
+          minimum: 0
+        preco:
+          type: number
+          description: "Preço por unidade, não negativo"
+          example: 149.9
+          minimum: 0
+        estoqueMinimo:
+          type: number
+          description: Quantidade mínima usada para indicar reposição
+          example: 3.0
+          minimum: 0
+        generoId:
+          type: integer
+          format: int64
+          description: Identificador de um gênero existente
+          example: 1
+        fornecedorId:
+          type:
+          - integer
+          - "null"
+          format: int64
+          description: Fornecedor opcional; null ou ausência remove/dispensa a associação
+          example: null
+      required:
+      - codigo
+      - estoqueMinimo
+      - generoId
+      - nome
+      - preco
+      - unidadesDisponiveis
+    MovimentacaoEstoqueRequest:
+      type: object
+      description: "Quantidade positiva para movimento acumulativo, não idempotente."
+      properties:
+        quantidade:
+          type: number
+          description: Quantidade maior que zero; até 15 dígitos inteiros e 3 decimais
+          example: 5.0
+          exclusiveMinimum: 0
+          maximum: 999999999999999.999
+          multipleOf: 0.001
+      required:
+      - quantidade
+    GeneroJogoRequest:
+      type: object
+      description: "Cadastro de gênero ativo com nome único, ignorando caixa e espaç\
+        os externos."
+      properties:
+        nome:
+          type: string
+          description: "Nome do gênero; cadastro permite até 100 caracteres; obrigató\
+            rio, não aceita texto vazio ou formado somente por espaços em branco"
+          example: Aventura
+          maxLength: 100
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+      required:
+      - nome
+    FornecedorRequest:
+      type: object
+      description: Cadastro de fornecedor ativo; os dados do exemplo são fictícios.
+      properties:
+        razaoSocial:
+          type: string
+          description: "Razão social do fornecedor fictício; obrigatório, não aceita\
+            \ texto vazio ou formado somente por espaços em branco"
+          example: Distribuidora Exemplo de Jogos
+          maxLength: 150
+          minLength: 1
+          pattern: "[\\s\\S]*[^\\u0009-\\u000D\\u001C-\\u0020\\u1680\\u2000-\\u2006\\\
+            u2008-\\u200A\\u2028\\u2029\\u205F\\u3000][\\s\\S]*"
+        cnpj:
+          type: string
+          description: "Identificador de 14 dígitos, único; exemplo deliberadamente\
+            \ fictício"
+          example: "00000000000000"
+          maxLength: 14
+          minLength: 14
+          pattern: "\\d{14}"
+      required:
+      - cnpj
+      - razaoSocial
+    FornecedorResponse:
+      type: object
+      description: Representação pública de fornecedor.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador gerado pelo servidor
+          example: 1
+          readOnly: true
+        razaoSocial:
+          type: string
+          description: Razão social do fornecedor fictício
+          example: Distribuidora Exemplo de Jogos
+        cnpj:
+          type: string
+          description: Identificador do fornecedor fictício
+          example: "00000000000000"
+          pattern: "\\d{14}"
+        status:
+          type: string
+          description: Situação do cadastro; alterada somente pela operação de status
+          enum:
+          - ATIVO
+          - INATIVO
+          example: ATIVO
+      required:
+      - cnpj
+      - id
+      - razaoSocial
+      - status
+    PaginaResponseJogoResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/JogoResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
+    PaginaResponseGeneroJogoResponse:
+      type: object
+      description: "Página estável da API, independente da representação interna do\
+        \ Spring Data."
+      properties:
+        conteudo:
+          type: array
+          description: Elementos da página atual; não representa necessariamente todos
+            os resultados
+          items:
+            $ref: "#/components/schemas/GeneroJogoResponse"
+        pagina:
+          type: integer
+          format: int32
+          description: "Índice da página atual, iniciado em zero"
+          example: 0
+          minimum: 0
+        tamanho:
+          type: integer
+          format: int32
+          description: "Quantidade solicitada por página; padrão 20, máximo 100"
+          example: 20
+          maximum: 100
+          minimum: 1
+        totalElementos:
+          type: integer
+          format: int64
+          description: Quantidade total de registros que correspondem aos filtros
+          example: 37
+          minimum: 0
+        totalPaginas:
+          type: integer
+          format: int32
+          description: Quantidade total de páginas para o tamanho informado
+          example: 2
+          minimum: 0
+        primeira:
+          type: boolean
+          description: Indica que a página é a primeira
+          example: true
+        ultima:
+          type: boolean
+          description: Indica que a página é a última
+          example: false
+      required:
+      - conteudo
+      - pagina
+      - primeira
+      - tamanho
+      - totalElementos
+      - totalPaginas
+      - ultima
