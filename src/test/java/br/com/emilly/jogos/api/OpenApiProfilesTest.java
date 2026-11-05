@@ -34,6 +34,7 @@ class OpenApiProfilesTest {
                 .run(context -> {
                     assertThat(context).hasNotFailed().doesNotHaveBean(DataSource.class);
                     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly(profile);
+                    assertThat(context.getEnvironment().getProperty("spring.jpa.show-sql", Boolean.class, false)).isFalse();
                     assertThat(context.getEnvironment().getProperty("springdoc.api-docs.enabled", Boolean.class, true)).isEqualTo(habilitada);
                     assertThat(context.getEnvironment().getProperty("springdoc.swagger-ui.enabled", Boolean.class, true)).isEqualTo(habilitada);
                     var mvc = MockMvcBuilders.webAppContextSetup(context).build();

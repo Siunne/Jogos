@@ -95,4 +95,10 @@ O contrato da Jogos API está documentado com springdoc 3.0.3, compatível com S
 
 Em dev/test: `/v3/api-docs`, `/v3/api-docs.yaml` e `/swagger-ui.html`. Em prod, os endpoints documentais ficam desabilitados. Para a instância segura de testes e as variáveis locais necessárias, siga o guia antes de executar os exemplos.
 
-A Aula 09 permanece apenas nos arquivos locais, aguardando revisão e autorização explícita da autora para operações de Git.
+A Aula 09 foi publicada no commit `96fd68ff7964bc8e351d54c9a097be4110fe3e7e`, com a tag `aula-09-openapi`.
+
+## Aula 10 — Pessoas, papéis e vendas de jogos
+
+O [guia da Aula 10](docs/aula-10-pessoas-vendas.md) reúne modelagem por composição, validação fiscal, migração 005, 20 novas operações, preço histórico e finalização transacional. Consulte o [contrato atual](docs/aula-10-openapi.yaml), a [coleção completa](postman/Jogos-Aula10.postman_collection.json), as [evidências](docs/aula-10-evidencias.md) e a [auditoria](docs/aula-10-auditoria.md).
+
+A Aula 10 permanece exclusivamente local, sem commit, push ou tag. Exemplos e coleções devem utilizar o banco de testes; desenvolvimento e produção não foram migrados nesta execução. O contrato e as evidências da Aula 09 continuam identificados como históricos.

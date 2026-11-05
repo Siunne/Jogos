@@ -29,13 +29,14 @@ public class GeneroJogoService {
 
     @Transactional
     public GeneroJogo cadastrar(String nome) {
-        nome = nome == null ? null : nome.trim();
+        var genero = new GeneroJogo(nome);
+        nome = genero.getNome();
         if (repository.existeNomeNormalizado(nome, null)) {
             throw new RecursoDuplicadoException(
                     "Nome do gênero já cadastrado");
         }
 
-        return repository.save(new GeneroJogo(nome));
+        return repository.save(genero);
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +54,7 @@ public class GeneroJogoService {
     @Transactional
     public GeneroJogo alterar(Long id, String nome) {
         var genero = buscarPorId(id);
-        String normalizado = nome == null ? null : nome.trim();
+        String normalizado = new GeneroJogo(nome).getNome();
         if (repository.existeNomeNormalizado(normalizado, id)) {
             throw new RecursoDuplicadoException("Nome do gênero já cadastrado");
         }

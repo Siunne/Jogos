@@ -960,11 +960,18 @@
     {
       "script": {
         "exec": [
+          "function fiscal(base, cnpj) {",
+          " let s=base;",
+          " for(let n=0;n<2;n++){let soma=0,peso=cnpj?s.length-7:s.length+1;",
+          "  for(let i=0;i<s.length;i++){soma+=Number(s[i])*peso--;if(cnpj&&peso===1)peso=9;}",
+          "  const resto=soma%11;s+=resto<2?0:11-resto;",
+          " }return s;",
+          "}",
           "if (pm.info.requestName === \"00 - Health\") {",
           " const token = Date.now().toString();",
           " pm.collectionVariables.set(\"execucao\", token);",
           " pm.collectionVariables.set(\"generoNome\", \"RPG \" + token);",
-          " pm.collectionVariables.set(\"cnpjTeste\", token.padStart(14, \"0\").slice(-14));",
+          " pm.collectionVariables.set(\"cnpjTeste\", fiscal(token.padStart(12, \"0\").slice(-12), true));",
           "}"
         ],
         "type": "text/javascript"

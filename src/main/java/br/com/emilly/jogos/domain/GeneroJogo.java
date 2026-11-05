@@ -96,7 +96,7 @@ public class GeneroJogo {
             String texto,
             String mensagem) {
 
-        if (texto == null || texto.isBlank() || texto.trim().length() > 120) {
+        if (texto == null || texto.isBlank() || texto.trim().isBlank() || texto.trim().length() > 120) {
             throw new IllegalArgumentException(mensagem);
         }
 

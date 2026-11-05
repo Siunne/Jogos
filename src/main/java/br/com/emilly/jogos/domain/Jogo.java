@@ -252,7 +252,7 @@ public class Jogo {
             String texto,
             String mensagem) {
 
-        if (texto == null || texto.isBlank()) {
+        if (texto == null || texto.isBlank() || texto.trim().isBlank()) {
             throw new IllegalArgumentException(mensagem);
         }
 

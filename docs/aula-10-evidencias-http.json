@@ -1,0 +1,420 @@
+{
+  "origem": "Newman 6.2.3 real; fixtures geradas no banco jogos_test; nenhum dado de desenvolvimento",
+  "executadoEm": "2026-11-05T12:14:27.707Z",
+  "cenarios": [
+    {
+      "cenario": "20 - Jogo A preço100 saldo10",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/jogos",
+      "requisicao": {
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 100,
+        "unidadesDisponiveis": 10,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "fornecedorId": 653
+      },
+      "status": 201,
+      "resposta": {
+        "id": 1277,
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 100,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 10,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "21 - Jogo B preço50 saldo10",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/jogos",
+      "requisicao": {
+        "codigo": "A10B-1793880859857",
+        "nome": "Aventura das Luas",
+        "preco": 50,
+        "unidadesDisponiveis": 10,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "fornecedorId": 653
+      },
+      "status": 201,
+      "resposta": {
+        "id": 1278,
+        "codigo": "A10B-1793880859857",
+        "nome": "Aventura das Luas",
+        "preco": 50,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 10,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "22 - Abrir venda",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/vendas",
+      "requisicao": {
+        "clienteId": 82,
+        "vendedorId": 82
+      },
+      "status": 201,
+      "resposta": {
+        "id": 56,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:25.0558825",
+        "status": "ABERTA",
+        "itens": [],
+        "total": 0
+      }
+    },
+    {
+      "cenario": "23 - Adicionar duas unidades A",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/vendas/56/itens",
+      "requisicao": {
+        "jogoId": 1277,
+        "quantidade": 2
+      },
+      "status": 200,
+      "resposta": {
+        "id": 56,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:25.055883",
+        "status": "ABERTA",
+        "itens": [
+          {
+            "id": 57,
+            "jogoId": 1277,
+            "jogoNome": "Reino das Estrelas",
+            "quantidade": 2,
+            "valorUnitario": 100,
+            "subtotal": 200
+          }
+        ],
+        "total": 200
+      }
+    },
+    {
+      "cenario": "26 - Adicionar três unidades B",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/vendas/56/itens",
+      "requisicao": {
+        "jogoId": 1278,
+        "quantidade": 3
+      },
+      "status": 200,
+      "resposta": {
+        "id": 56,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:25.055883",
+        "status": "ABERTA",
+        "itens": [
+          {
+            "id": 58,
+            "jogoId": 1277,
+            "jogoNome": "Reino das Estrelas",
+            "quantidade": 2,
+            "valorUnitario": 100,
+            "subtotal": 200
+          },
+          {
+            "id": 59,
+            "jogoId": 1278,
+            "jogoNome": "Aventura das Luas",
+            "quantidade": 3,
+            "valorUnitario": 50,
+            "subtotal": 150
+          }
+        ],
+        "total": 350
+      }
+    },
+    {
+      "cenario": "27 - Saldo A antes finalizar",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/jogos/1277",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 1277,
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 100,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 10,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "28 - Alterar preço atual para120",
+      "metodo": "PUT",
+      "url": "http://localhost:18080/api/jogos/1277",
+      "requisicao": {
+        "nome": "Reino das Estrelas",
+        "preco": 120,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "fornecedorId": 653
+      },
+      "status": 200,
+      "resposta": {
+        "id": 1277,
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 120,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 10,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "29 - Consultar snapshot histórico",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/vendas/56",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 56,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:25.055883",
+        "status": "ABERTA",
+        "itens": [
+          {
+            "id": 58,
+            "jogoId": 1277,
+            "jogoNome": "Reino das Estrelas",
+            "quantidade": 2,
+            "valorUnitario": 100,
+            "subtotal": 200
+          },
+          {
+            "id": 59,
+            "jogoId": 1278,
+            "jogoNome": "Aventura das Luas",
+            "quantidade": 3,
+            "valorUnitario": 50,
+            "subtotal": 150
+          }
+        ],
+        "total": 350
+      }
+    },
+    {
+      "cenario": "30 - Finalizar venda",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/vendas/56/finalizacao",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 56,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:25.055883",
+        "status": "FINALIZADA",
+        "itens": [
+          {
+            "id": 58,
+            "jogoId": 1277,
+            "jogoNome": "Reino das Estrelas",
+            "quantidade": 2,
+            "valorUnitario": 100,
+            "subtotal": 200
+          },
+          {
+            "id": 59,
+            "jogoId": 1278,
+            "jogoNome": "Aventura das Luas",
+            "quantidade": 3,
+            "valorUnitario": 50,
+            "subtotal": 150
+          }
+        ],
+        "total": 350
+      }
+    },
+    {
+      "cenario": "31 - Conferir saldo final A8",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/jogos/1277",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 1277,
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 120,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 8,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "32 - Conferir saldo final B7",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/jogos/1278",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 1278,
+        "codigo": "A10B-1793880859857",
+        "nome": "Aventura das Luas",
+        "preco": 50,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 7,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "33 - Bloquear remoção após finalização",
+      "metodo": "DELETE",
+      "url": "http://localhost:18080/api/vendas/56/itens/58",
+      "requisicao": null,
+      "status": 400,
+      "resposta": {
+        "timestamp": "2026-11-05T09:14:26.0806965",
+        "status": 400,
+        "error": "Bad Request",
+        "message": "Somente vendas abertas podem ser alteradas",
+        "path": "/api/vendas/56/itens/58",
+        "fields": {}
+      }
+    },
+    {
+      "cenario": "47 - Rollback finalização falha",
+      "metodo": "POST",
+      "url": "http://localhost:18080/api/vendas/58/finalizacao",
+      "requisicao": null,
+      "status": 400,
+      "resposta": {
+        "timestamp": "2026-11-05T09:14:27.2911346",
+        "status": 400,
+        "error": "Bad Request",
+        "message": "Unidades disponíveis insuficientes",
+        "path": "/api/vendas/58/finalizacao",
+        "fields": {}
+      }
+    },
+    {
+      "cenario": "48 - Rollback saldo A preservado8",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/jogos/1277",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 1277,
+        "codigo": "A10A-1793880859857",
+        "nome": "Reino das Estrelas",
+        "preco": 120,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 8,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "49 - Rollback saldo B preservado7",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/jogos/1278",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 1278,
+        "codigo": "A10B-1793880859857",
+        "nome": "Aventura das Luas",
+        "preco": 50,
+        "estoqueMinimo": 1,
+        "generoId": 1678,
+        "generoNome": "Venda Jogos 1793880859857",
+        "fornecedorId": 653,
+        "fornecedorRazaoSocial": "Fornecedor Aula10 1793880859857",
+        "unidadesDisponiveis": 7,
+        "dataCadastro": "2026-11-05",
+        "status": "ATIVO"
+      }
+    },
+    {
+      "cenario": "50 - Rollback venda continua aberta",
+      "metodo": "GET",
+      "url": "http://localhost:18080/api/vendas/58",
+      "requisicao": null,
+      "status": 200,
+      "resposta": {
+        "id": 58,
+        "clienteId": 82,
+        "clienteNome": "Pessoa Jogos Atualizada 1793880859857",
+        "vendedorId": 82,
+        "vendedorNome": "Pessoa Jogos Atualizada 1793880859857",
+        "dataVenda": "2026-11-05T09:14:27.041114",
+        "status": "ABERTA",
+        "itens": [
+          {
+            "id": 60,
+            "jogoId": 1277,
+            "jogoNome": "Reino das Estrelas",
+            "quantidade": 1,
+            "valorUnitario": 120,
+            "subtotal": 120
+          },
+          {
+            "id": 61,
+            "jogoId": 1278,
+            "jogoNome": "Aventura das Luas",
+            "quantidade": 999,
+            "valorUnitario": 50,
+            "subtotal": 49950
+          }
+        ],
+        "total": 50070
+      }
+    }
+  ]
+}

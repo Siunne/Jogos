@@ -1,5 +1,7 @@
 # Aula 09 — Contrato OpenAPI da Jogos API
 
+> Registro histórico da Aula 09. A API atual evoluiu na [Aula 10](aula-10-pessoas-vendas.md), com contrato próprio em [aula-10-openapi.yaml](aula-10-openapi.yaml). As 18 operações anteriores permanecem, mas novas entradas de fornecedor agora exigem CNPJ com dígitos verificadores válidos. Os resultados e exemplos abaixo registram o comportamento daquela aula; o YAML histórico não foi sobrescrito.
+
 ## Resultado e fontes
 
 Incremento local da Aula 09, preservando as Aulas 07/08. Material oficial: https://github.com/jeffersonarpasserini/suporteos2026/blob/main/docs/09aula/09aula.md. A leitura abrangeu checkpoints, laboratório, atividades, entregáveis, rubrica e checklist, e foi repetida na auditoria final.

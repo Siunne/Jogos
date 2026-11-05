@@ -20,14 +20,14 @@ public class FornecedorService {
 
     @Transactional
     public Fornecedor cadastrar(String razaoSocial, String cnpj) {
+        var fornecedor = new Fornecedor(razaoSocial, cnpj);
 
         if (repository.existsByCnpj(cnpj)) {
             throw new RecursoDuplicadoException(
                     "CNPJ já cadastrado");
         }
 
-        return repository.save(
-                new Fornecedor(razaoSocial, cnpj));
+        return repository.save(fornecedor);
     }
 
     @Transactional(readOnly = true)

@@ -50,6 +50,8 @@ function scripts(events, kind) {
   assert.equal(jsonResponse.status, 200);
   const rawJson = await jsonResponse.text();
   doc = JSON.parse(rawJson);
+  assert.equal(Object.values(doc.paths).flatMap(path => Object.values(path)).filter(op => op.operationId).length, 18,
+    'Este exportador pertence à Aula 09. Para Aula 10, use aula10-exportar-contrato.cjs; o histórico não será sobrescrito.');
   assert.equal(doc.info.title, 'Jogos API');
   const yamlResponse = await fetch(base + '/v3/api-docs.yaml');
   assert.equal(yamlResponse.status, 200);

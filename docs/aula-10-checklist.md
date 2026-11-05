@@ -1,0 +1,106 @@
+# Aula 10 — Checklist de requisitos
+
+Baseline:85 testes aprovados antes de alterar o projeto. Acompanhar junto à matriz detalhada aula-10-auditoria.md; as referências abaixo identificam o resultado final, sem simular revisão humana.
+
+- [x] 1. Baseline antes de editar, Git limpo, 85 testes — target/aula10-baseline.log: BUILD SUCCESS
+- [x] 2. Adaptar Produto/GrupoProduto sem renomear Jogo/GeneroJogo — OpenApiDocumentationTest: 38 mappings exatos
+- [x] 3. Identidade central Pessoa, composição e ausência de herança JPA — PessoaTest.papeisSimultaneosComMesmaIdentidade
+- [x] 4. Explicar substituição, limites da herança e diferença de função/permissão — Diagrama e questões 1–3; ContaAcesso somente conceitual
+- [x] 5. Pessoa: nome/email/CPF/data/status e alterações validadas — PessoaTest.validaEmailNomeEAlteracaoNoDominio
+- [x] 6. CPF único e conflito409 — Aula10ControllerTest.rejeitaCpfEEmailDuplicadosSemBloquearProprioId
+- [x] 7. Email válido, minúsculo, único normalizado — PessoaTest; Aula10ControllerTest; MigracaoComercialTest
+- [x] 8. Data gerada no servidor e status inicial ATIVO — cadastroPessoaNormalizaRetornaLocationEDateDoServidor
+- [x] 9. PUT preserva data/status e valida alterações no domínio — PessoaTest.alteracaoPreservaDataEStatus
+- [x] 10. Ativação/inativação não apaga histórico — jogoVendidoNaoPodeSerExcluidoEHistoricoSobreviveInativacao
+- [x] 11. Cliente: pessoa obrigatória, FK e unicidade — criaPapeisSimultaneosComLocationEImpedeDuplicidade
+- [x] 12. Papel criado somente com pessoa ativa — PessoaTest.inativaNaoRecebePapel; papelExigePessoaAtiva
+- [x] 13. Telefone opcional e editável, máximo30 — PessoaTest; criaPapeisSimultaneosComLocationEImpedeDuplicidade
+- [x] 14. Colaborador: pessoa obrigatória e única — criaPapeisSimultaneosComLocationEImpedeDuplicidade
+- [x] 15. Matrícula única e alteração com exclusão do próprio ID — matriculaDuplicadaEFuncaoInvalida
+- [x] 16. Enum das quatro funções e data de admissão obrigatória — PessoaTest.colaboradorValidaFuncaoEAdmissao
+- [x] 17. PUT não substitui pessoa nem admissão — OpenApiComercialTest.novosDtosDocumentadosComExemplosValidos; teste HTTP de alteração
+- [x] 18. Somente vendedor/gerente aptos a vender — PessoaTest; VendaServiceTest.funcaoAlteradaImpedeFinalizacao
+- [x] 19. CPF: DVs reais e exemplo52998224725/24 — DocumentoFiscalTest.exemplosOficiais
+- [x] 20. CNPJ: DVs reais e exemplo11222333000181/82 — DocumentoFiscalTest.exemplosOficiais
+- [x] 21. Repetidos, null, vazio, espaços, tamanho e caracteres indevidos — cpfRejeitaFronteiras; cnpjRejeitaFronteiras, parametrizados
+- [x] 22. Obrigatoriedade separada de validade fiscal — validadoresSeparamObrigatoriedade
+- [x] 23. Validar nos DTOs e novamente no domínio — DocumentoFiscalTest: fronteiras nas duas camadas; rejeitaCpfCnpjInvalidosComApiError
+- [x] 24. Não confundir DV com existência ou titularidade — Explicação fiscal e respostas às questões6/7
+- [x] 25. Fornecedor passa a validar CNPJ sem perder associação opcional — 85 testes anteriores preservados; Newman 30 pedidos antigos
+- [x] 26. Inspecionar legado e não corrigir documentos arbitrariamente — SELECT dev2/2 inválidos e test12/12; proposta de saneamento, sem UPDATE
+- [x] 27. Venda começa ABERTA com data do servidor — VendaTest; Aula10ControllerTest.abrir; Newman
+- [x] 28. Somente aberta aceita inclusão e remoção — VendaTest.finalizadaNaoAlteraNemEstorna; contrato HTTP
+- [x] 29. Venda vazia não finaliza — VendaTest.vaziaNaoFinaliza; Newman
+- [x] 30. Cancelamento somente da aberta, sem reabertura ou estorno — VendaTest.cancelaSemBaixaENaoReabre
+- [x] 31. Entidade associativa ItemVenda, não ManyToMany direto — JPA e diagrama; vendaAdicionaRemoveReincluiEValidaSnapshot
+- [x] 32. Quantidade positiva, BigDecimal e precisão18/3 — VendaTest.rejeitaQuantidadesInvalidas; dtoQuantidadeRejeitaMaisDeTresCasas
+- [x] 33. Preço não negativo, BigDecimal, precisão18/2 — Validação de domínio e CHECK inspecionado em MigracaoComercialTest
+- [x] 34. Snapshot de preço100×2=200 preservado após catálogo120 — snapshotPersistidoEFinalizacaoBaixamUmaUnicaVez; preservaPrecoHistoricoETotal
+- [x] 35. Subtotal e total com escala2 e HALF_UP — subtotalFracionarioArredondaComHalfUp
+- [x] 36. Total derivado, sem coluna total — VendaResumo sem total; inspeção da migração e OpenApiComercialTest
+- [x] 37. Não repetir mesmo jogo na venda, par único no banco — rejeitaJogoRepetido; rejeitaDuplicadoEQuantidadeZeroSemBaixar
+- [x] 38. Jogo em várias vendas; venda com vários jogos — VendaServiceTest.paginaResumoExecutaNoBancoSemBuscarColecoes; Newman
+- [x] 39. Inclusão de item não baixa estoque — preservaPrecoHistoricoETotal; snapshotPersistidoEFinalizacaoBaixamUmaUnicaVez; Newman saldo10
+- [x] 40. Cancelar venda aberta não baixa estoque — cancelamentoMantemSaldo; vaziaNaoFinalizaECancelamentoNaoBaixa
+- [x] 41. Finalização valida participantes ativos e função adequada — Testes separados de cliente inativo, vendedor inativo e função alterada
+- [x] 42. Jogos ativos na inclusão/finalização — VendaTest.rejeitaJogoInativo; VendaServiceTest.jogoInativoImpedeFinalizacao
+- [x] 43. Baixa por métodos existentes e estoque nunca negativo — snapshotPersistidoEFinalizacaoBaixamUmaUnicaVez; rollback; testes anteriores de estoque
+- [x] 44. Finalização em transação única — Sucesso persistido e rollbackOnly provocado por falha do service
+- [x] 45. Rollback real: flush/JDBC e leitura posterior independente — rollbackRealDoSegundoItemPreservaAmbosSaldosEVendaAberta
+- [x] 46. Impedir segunda finalização e baixa duplicada — finalizadaNaoAlteraNemEstorna; Newman
+- [x] 47. Documentar concorrência, não implementar locks — Limitação explícita: atualização perdida; sem @Version/Lock
+- [x] 48. Migração incremental005 registrada no master — MigracaoComercialTest e PersistenciaJpaTest18+24
+- [x] 49. Não modificar changesets001–004 — git diff somente de leitura: nenhum arquivo anterior alterado
+- [x] 50. Cinco tabelas e tipos reais do domínio Jogos — MigracaoComercialTest verifica cinco tabelas
+- [x] 51. PKs e seis FKs — MigracaoComercialTest consulta pg_constraint
+- [x] 52. Unicidade CPF/email/matrícula/pessoa por papel/venda-jogo — DDL; duplicidades HTTP; restrição SQL em schema isolado
+- [x] 53. CHECK de status, função, quantidade e preço — MigracaoComercialTest verifica sete CHECKs
+- [x] 54. RESTRICT protege histórico e CASCADE só venda→itens — jogoVendidoNaoPodeSerExcluidoEHistoricoSobreviveInativacao; Newman409
+- [x] 55. Rollback definido para todos os changesets — Inspeção do YAML; não executado sobre schema de dev/prod
+- [x] 56. Aplicar master em banco/schema limpo isolado — aplicaTodasMigracoesEmSchemaLimpo
+- [x] 57. Aplicar005 após001–004 preservando legado — aplica005Sobre001A004SemAlterarFornecedorLegado
+- [x] 58. Quatro repositories das raízes — Testes integrados no PostgreSQL e consultas MockMvc
+- [x] 59. Quatro services e regras fora dos controllers — VendaServiceTest; PessoaTest; Aula10ControllerTest
+- [x] 60. Mappers e DTOs, sem entidades JPA expostas — Serialização HTTP/Newman; schemas OpenAPI
+- [x] 61. EntityGraph e OSIV desabilitado — HTTP fora da transação de teste e Newman real; sem LazyInitializationException
+- [x] 62. Página de resumo sem coleção e sem N+1 desnecessário — paginaResumoExecutaNoBancoSemBuscarColecoes: <=2 SQL, zero collection fetch
+- [x] 63. Specifications combináveis para cadastros e vendas — pesquisaOsTresCadastrosComFiltrosEPagina; filtrosVendasCombinadosSemColecaoEPaginacaoReal
+- [x] 64. Período inclusivo e rejeição de intervalo invertido — rejeitaPeriodoInvertidoOrdenacaoETamanhoInvalidos
+- [x] 65. Página base0, padrão20, máximo100, sort permitido — Testes antigos; testes HTTP novos e OpenApiComercialTest
+- [x] 66. Cinco operações de pessoas — Aula10ControllerTest; Newman; mapping exato no OpenApiDocumentationTest
+- [x] 67. Quatro operações de clientes — Aula10ControllerTest; Newman; mapping exato
+- [x] 68. Quatro operações de colaboradores — Aula10ControllerTest; Newman; mapping exato
+- [x] 69. Sete operações de vendas — Aula10ControllerTest; Newman; mapping exato
+- [x] 70. Criações201 com Location — Newman testa Location; cadastroPessoaNormalizaRetornaLocationEDateDoServidor
+- [x] 71. Remoção de item204 sem corpo — MockMvc e Newman204 sem corpo
+- [x] 72. IllegalStateException comercial400, erros404/409 corretos — Transições HTTP400; referências404; duplicidades409
+- [x] 73. Quatro novos grupos Swagger — OpenApiDocumentationTest e captura Chrome real
+- [x] 74. Comparar todas as rotas e métodos reais com contrato — 38 operações e24 caminhos; nenhuma rota anterior removida
+- [x] 75. Documentar DTOs, exemplos e validações — novosDtosDocumentadosComExemplosValidos; exemplos de erros comparados com handler
+- [x] 76. Exportar versão própria e preservar Aula09 — OpenApiComercialTest compara YAML/JSON; YAML09 permanece histórico
+- [x] 77. Swagger disponível dev/test e bloqueado prod sem banco real — Três testes web sem DataSource; nenhum banco de produção conectado
+- [x] 78. Executar coleção no Newman real — target/aula10-newman.json:81 pedidos/135 assertions/0 falhas
+- [x] 79. Gerar documentos fiscais matematicamente válidos — Criações201 no Newman; CPF/CNPJ inválidos400
+- [x] 80. Preservar pedidos e testes das aulas anteriores — 30 pedidos e43 verificações anteriores executados no conjunto
+- [x] 81. IDs capturados automaticamente — Nenhum pressuposto de ID=1; execuções sucessivas aprovadas
+- [x] 82. Inclusão/remoção/reinclusão, finalizar/cancelar e jogo vendido — Newman todos os cenários, 204/200/400/409
+- [x] 83. Executar cenário dois jogos, snapshot, finalização e erro — Extração direta do Newman; 10→8 e10→7; total350; remoção400
+- [x] 84. Síntese de até dez linhas: estado, snapshot, transação — Oito linhas numeradas conectadas aos resultados reais
+- [x] 85. Diagrama e justificativa de composição no tema Jogos — Mermaid e comparação com alternativa de herança
+- [x] 86. Responder às12 questões de revisão — Seção Doze questões de revisão
+- [x] 87. Explicar futura ContaAcesso associada a Pessoa — FK única futura e separação identidade/papel/autorização
+- [x] 88. Não implementar credenciais, JWT, autorização ou estorno — Nenhuma dessas classes/dependências adicionada; limites documentados
+- [x] 89. Cardinalidades, composição e alternativas de evolução — PessoaTest; papéis simultâneos e futuro acesso explicados
+- [x] 90. DVs nas duas camadas, fronteiras e limites — Null/vazio/repetidos/formato e titularidade discutidos
+- [x] 91. Invariantes, snapshot e contrato testados — Unitários, persistência e HTTP reais
+- [x] 92. Rollback demonstrado e concorrência analisada — Flush+JDBC+leitura independente; limitação explícita
+- [x] 93. Experiência externa completa e reproduzível — Newman81/135; 38 operações e DTOs; execução documentada
+- [x] 94. Conectar teoria, decisão e evidências sem resultados inventados — Composição/alternativas/estado/snapshot/atomicidade e12 questões
+- [x] 95. Adaptar regras ao tema sem cópia mecânica de nomes — Preços e estoque de jogos reais, fornecedor opcional preservado
+- [x] 96. Minimização de dados e documentos não usados como credenciais — Exemplos didáticos; respostas por campo sem eco de CPF; política futura de logs descrita
+- [x] 97. Suíte completa anterior e nova no PostgreSQL — target/aula10-suite-final.log; nenhuma desabilitação de teste
+- [x] 98. Sete testes Node existentes continuam passando — target/aula10-node.log:7 aprovados
+- [x] 99. git diff --check e inspeção de novos arquivos/segredos — Consultas somente de leitura; target/.env ignorados
+- [x] 100. Reprodução sem classes/credenciais versionadas — Cópia isolada das fontes com configuração externa do banco de testes
+- [ ] 101. Participação em dupla e apresentação humana — Execução automatizada não substitui participação de outra pessoa
+- [x] 102. Manter implementação local sem Git de escrita/publicação — HEAD permanece96fd68f; nenhum add/commit/push/tag/branch/merge/reset/rebase

@@ -4,66 +4,61 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(
-        name = "fornecedor",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_fornecedor_cnpj",
-                columnNames = "cnpj"))
+    name = "fornecedor",
+    uniqueConstraints = @UniqueConstraint(name = "uk_fornecedor_cnpj", columnNames = "cnpj"))
 public class Fornecedor {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "razao_social", nullable = false, length = 150)
-    private String razaoSocial;
+  @Column(name = "razao_social", nullable = false, length = 150)
+  private String razaoSocial;
 
-    @Column(nullable = false, length = 14)
-    private String cnpj;
+  @Column(nullable = false, length = 14)
+  private String cnpj;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Status status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private Status status;
 
-    protected Fornecedor() {
+  protected Fornecedor() {}
+
+  public Fornecedor(String razaoSocial, String cnpj) {
+    this.razaoSocial = validarTextoObrigatorio(razaoSocial);
+    this.cnpj = validarCnpj(cnpj);
+    this.status = Status.ATIVO;
+  }
+
+  private static String validarTextoObrigatorio(String texto) {
+    if (texto == null || texto.isBlank() || texto.trim().isBlank()) {
+      throw new IllegalArgumentException("Razão social é obrigatória");
     }
 
-    public Fornecedor(String razaoSocial, String cnpj) {
-        this.razaoSocial = validarTextoObrigatorio(razaoSocial);
-        this.cnpj = validarCnpj(cnpj);
-        this.status = Status.ATIVO;
+    return texto.trim();
+  }
+
+  private static String validarCnpj(String cnpj) {
+    if (!DocumentoFiscal.cnpjValido(cnpj)) {
+      throw new IllegalArgumentException("CNPJ inválido");
     }
 
-    private static String validarTextoObrigatorio(String texto) {
-        if (texto == null || texto.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Razão social é obrigatória");
-        }
+    return cnpj;
+  }
 
-        return texto.trim();
-    }
+  public Long getId() {
+    return id;
+  }
 
-    private static String validarCnpj(String cnpj) {
-        if (cnpj == null || !cnpj.matches("\\d{14}")) {
-            throw new IllegalArgumentException(
-                    "CNPJ deve possuir 14 dígitos");
-        }
+  public String getRazaoSocial() {
+    return razaoSocial;
+  }
 
-        return cnpj;
-    }
+  public String getCnpj() {
+    return cnpj;
+  }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getRazaoSocial() {
-        return razaoSocial;
-    }
-
-    public String getCnpj() {
-        return cnpj;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
+  public Status getStatus() {
+    return status;
+  }
 }
