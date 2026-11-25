@@ -22,7 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-@org.springframework.security.test.context.support.WithMockUser(username="operador-teste", roles="OPERADOR")
+@org.springframework.security.test.context.support.WithMockUser(
+    username = "operador-teste",
+    roles = "OPERADOR")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -140,7 +142,10 @@ class OpenApiDocumentationTest {
             "delete /api/vendas/{vendaId}/itens/{itemId}",
             "post /api/vendas/{id}/finalizacao",
             "post /api/vendas/{id}/cancelamento",
-            "post /api/contas-acesso", "get /api/contas-acesso/me", "put /api/contas-acesso/me/senha"),
+            "post /api/autenticacao/login",
+            "post /api/contas-acesso",
+            "get /api/contas-acesso/me",
+            "put /api/contas-acesso/me/senha"),
         operations.keySet());
     var reais = new HashSet<String>();
     mappings
@@ -173,7 +178,9 @@ class OpenApiDocumentationTest {
             "Pessoas",
             "Clientes",
             "Colaboradores",
-            "Vendas", "Contas de acesso"),
+            "Vendas",
+            "Contas de acesso",
+            "Autenticação"),
         valores(json.valueToTree(doc.path("tags").findValuesAsText("name"))));
     var ids = new HashSet<String>();
     operacoes(doc)
@@ -183,19 +190,25 @@ class OpenApiDocumentationTest {
               assertFalse(op.path("description").asText().isBlank(), path);
               assertTrue(ids.add(op.path("operationId").asText()), path);
               String tag =
-                  path.contains("/contas-acesso") ? "Contas de acesso" : path.contains("/generos")
-                      ? "Gêneros de jogos"
-                      : path.contains("/jogos")
-                          ? "Jogos"
-                          : path.contains("/fornecedores")
-                              ? "Fornecedores"
-                              : path.contains("/pessoas")
-                                  ? "Pessoas"
-                                  : path.contains("/clientes")
-                                      ? "Clientes"
-                                      : path.contains("/colaboradores")
-                                          ? "Colaboradores"
-                                          : path.contains("/vendas") ? "Vendas" : "Infraestrutura";
+                  path.contains("/autenticacao")
+                      ? "Autenticação"
+                      : path.contains("/contas-acesso")
+                          ? "Contas de acesso"
+                          : path.contains("/generos")
+                              ? "Gêneros de jogos"
+                              : path.contains("/jogos")
+                                  ? "Jogos"
+                                  : path.contains("/fornecedores")
+                                      ? "Fornecedores"
+                                      : path.contains("/pessoas")
+                                          ? "Pessoas"
+                                          : path.contains("/clientes")
+                                              ? "Clientes"
+                                              : path.contains("/colaboradores")
+                                                  ? "Colaboradores"
+                                                  : path.contains("/vendas")
+                                                      ? "Vendas"
+                                                      : "Infraestrutura";
               assertEquals(Set.of(tag), valores(op.path("tags")), path);
             });
   }
@@ -240,14 +253,30 @@ class OpenApiDocumentationTest {
             Map.entry("get /api/vendas/{id}", Set.of("200", "400", "404")),
             Map.entry("get /api/vendas", Set.of("200", "400")),
             Map.entry("post /api/vendas/{id}/itens", Set.of("200", "400", "404", "409")),
-            Map.entry("delete /api/vendas/{vendaId}/itens/{itemId}", Set.of("204", "400", "404", "409")),
+            Map.entry(
+                "delete /api/vendas/{vendaId}/itens/{itemId}", Set.of("204", "400", "404", "409")),
             Map.entry("post /api/vendas/{id}/finalizacao", Set.of("200", "400", "404", "409")),
             Map.entry("post /api/vendas/{id}/cancelamento", Set.of("200", "400", "404", "409")));
     operacoes(doc)
         .forEach(
             (path, op) -> {
-              var codigos = new HashSet<>(path.equals("post /api/contas-acesso") ? Set.of("201","400","404","409") : path.equals("get /api/contas-acesso/me") ? Set.of("200") : path.equals("put /api/contas-acesso/me/senha") ? Set.of("204","400") : expected.get(path));
-              if (!Set.of("get /api/health","post /api/pessoas","post /api/contas-acesso").contains(path)) codigos.add("401");
+              var codigos =
+                  new HashSet<>(
+                      path.equals("post /api/autenticacao/login")
+                          ? Set.of("200", "400", "401")
+                          : path.equals("post /api/contas-acesso")
+                              ? Set.of("201", "400", "404", "409")
+                              : path.equals("get /api/contas-acesso/me")
+                                  ? Set.of("200")
+                                  : path.equals("put /api/contas-acesso/me/senha")
+                                      ? Set.of("204", "400")
+                                      : expected.get(path));
+              if (!Set.of(
+                      "get /api/health",
+                      "post /api/pessoas",
+                      "post /api/contas-acesso",
+                      "post /api/autenticacao/login")
+                  .contains(path)) codigos.add("401");
               assertEquals(codigos, chaves(op.path("responses")), path);
               op.path("responses")
                   .fields()
@@ -256,7 +285,10 @@ class OpenApiDocumentationTest {
                         var value = response.getValue();
                         if (Integer.parseInt(response.getKey()) >= 400) {
                           assertEquals(
-                              response.getKey().equals("401") ? "#/components/schemas/ErroAutenticacao" : "#/components/schemas/ApiError",
+                              response.getKey().equals("401")
+                                      && !path.contains("/autenticacao/login")
+                                  ? "#/components/schemas/ErroAutenticacao"
+                                  : "#/components/schemas/ApiError",
                               value.at("/content/application~1json/schema/$ref").asText(),
                               path);
                         } else if (response.getKey().equals("204")) {
@@ -521,13 +553,19 @@ class OpenApiDocumentationTest {
                                   .at("/content/application~1json/examples/Erro" + code + "/value");
                           assertFalse(example.isMissingNode(), path);
                           assertEquals(code, example.path("status").asInt(), path);
-                          if (code == 401) {
+                          if (code == 401 && !path.contains("/autenticacao/login")) {
                             assertEquals(Set.of("status", "message"), chaves(example));
-                            assertEquals("Autenticação necessária ou credenciais inválidas", example.path("message").asText());
+                            assertEquals(
+                                "Autenticação necessária ou credenciais inválidas",
+                                example.path("message").asText());
                             return;
                           }
                           assertEquals(
-                              code == 400 ? "Bad Request" : code == 404 ? "Not Found" : "Conflict",
+                              code == 400
+                                  ? "Bad Request"
+                                  : code == 401
+                                      ? "Unauthorized"
+                                      : code == 404 ? "Not Found" : "Conflict",
                               example.path("error").asText());
                           assertEquals(
                               Set.of("timestamp", "status", "error", "message", "path", "fields"),
@@ -652,7 +690,7 @@ class OpenApiDocumentationTest {
   void contratoExportadoEReproduzivelETodasAsReferenciasResolvem() throws Exception {
     var doc = documento();
     var exportado =
-        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-12-openapi.yaml")));
+        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-13-openapi.yaml")));
     // A URL de servidor depende da porta usada na captura; o contrato não depende dela.
     for (String part : List.of("openapi", "info", "paths", "components", "tags", "externalDocs")) {
       assertEquals(doc.path(part), exportado.path(part), part);

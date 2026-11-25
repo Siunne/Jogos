@@ -14,6 +14,30 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
   @Bean
+  org.springframework.security.authentication.AuthenticationManager authenticationManager(
+      org.springframework.security.config.annotation.authentication.configuration
+              .AuthenticationConfiguration
+          configuration)
+      throws Exception {
+    return configuration.getAuthenticationManager();
+  }
+
+  private org.springframework.security.oauth2.server.resource.authentication
+          .JwtAuthenticationConverter
+      jwtAuthenticationConverter() {
+    var authorities =
+        new org.springframework.security.oauth2.server.resource.authentication
+            .JwtGrantedAuthoritiesConverter();
+    authorities.setAuthoritiesClaimName("perfis");
+    authorities.setAuthorityPrefix("ROLE_");
+    var converter =
+        new org.springframework.security.oauth2.server.resource.authentication
+            .JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(authorities);
+    return converter;
+  }
+
+  @Bean
   public PasswordEncoder passwordEncoder() {
     var delegate = PasswordEncoderFactories.createDelegatingPasswordEncoder();
     return new PasswordEncoder() {
@@ -25,7 +49,7 @@ public class SecurityConfig {
 
       @Override
       public boolean matches(CharSequence raw, String encoded) {
-        // A proteção de 72 bytes vale também no Basic, evitando truncamento/erro do BCrypt.
+        // A proteção de 72 bytes vale também na autenticação, evitando truncamento/erro do BCrypt.
         if (!br.com.emilly.jogos.domain.PoliticaSenha.valida(raw == null ? null : raw.toString()))
           return false;
         try {
@@ -47,7 +71,7 @@ public class SecurityConfig {
   public AuthenticationEntryPoint credenciaisInvalidas() {
     return (request, response, failure) -> {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      response.setHeader("WWW-Authenticate", "Basic realm=\"Jogos\", charset=\"UTF-8\"");
+      response.setHeader("WWW-Authenticate", "Bearer realm=\"Jogos\"");
       response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
       // Resposta genérica, sem serializar falha, credencial, header ou path fornecido pelo cliente.
@@ -77,12 +101,20 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/swagger-ui/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/pessoas", "/api/contas-acesso")
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/pessoas",
+                        "/api/contas-acesso",
+                        "/api/autenticacao/login")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
         .exceptionHandling(e -> e.authenticationEntryPoint(credenciaisInvalidas))
-        .httpBasic(b -> b.authenticationEntryPoint(credenciaisInvalidas))
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .oauth2ResourceServer(
+            o ->
+                o.jwt(j -> j.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                    .authenticationEntryPoint(credenciaisInvalidas))
         .build();
   }
 }

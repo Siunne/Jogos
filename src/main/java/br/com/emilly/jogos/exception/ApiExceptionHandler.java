@@ -14,6 +14,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+  @ExceptionHandler(CredenciaisInvalidasException.class)
+  public ResponseEntity<ApiError> tratarCredenciais(HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(
+            criarErro(
+                HttpStatus.UNAUTHORIZED,
+                "Login ou senha inválidos",
+                request.getRequestURI(),
+                Map.of()));
+  }
+
   @ExceptionHandler({
     org.springframework.dao.PessimisticLockingFailureException.class,
     jakarta.persistence.PessimisticLockException.class,

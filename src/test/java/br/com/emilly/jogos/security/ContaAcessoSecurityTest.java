@@ -1,7 +1,6 @@
 package br.com.emilly.jogos.security;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -104,9 +103,47 @@ class ContaAcessoSecurityTest {
         "SELECT senha_hash FROM conta_acesso WHERE pessoa_id=?", String.class, pessoaId);
   }
 
-  void autentica(String pass, int status) throws Exception {
-    mvc.perform(get("/api/contas-acesso/me").with(httpBasic(login, pass)))
-        .andExpect(status().is(status));
+  org.springframework.test.web.servlet.request.RequestPostProcessor bearerComCredenciais(
+      String l, String pass) throws Exception {
+    var r =
+        mvc.perform(
+                post("/api/autenticacao/login")
+                    .contentType("application/json")
+                    .content(json.writeValueAsString(Map.of("login", l, "senha", pass))))
+            .andReturn()
+            .getResponse();
+    if (r.getStatus() != 200) {
+      assertEquals(401, r.getStatus());
+      return request -> {
+        request.addHeader("Authorization", "Bearer invalido");
+        return request;
+      };
+    }
+    String token = json.readTree(r.getContentAsString()).path("accessToken").asText();
+    assertFalse(token.isBlank());
+    return request -> {
+      request.addHeader("Authorization", "Bearer " + token);
+      return request;
+    };
+  }
+
+  void autentica(String pass, int expected) throws Exception {
+    var r =
+        mvc.perform(
+                post("/api/autenticacao/login")
+                    .contentType("application/json")
+                    .content(json.writeValueAsString(Map.of("login", login, "senha", pass))))
+            .andExpect(status().is(expected))
+            .andReturn()
+            .getResponse();
+    if (expected == 200)
+      mvc.perform(
+              get("/api/contas-acesso/me")
+                  .header(
+                      "Authorization",
+                      "Bearer "
+                          + json.readTree(r.getContentAsString()).path("accessToken").asText()))
+          .andExpect(status().isOk());
   }
 
   @Test
@@ -174,7 +211,7 @@ class ContaAcessoSecurityTest {
         var erro =
             mvc.perform(
                     put("/api/contas-acesso/me/senha")
-                        .with(httpBasic(login, senha))
+                        .with(bearerComCredenciais(login, senha))
                         .contentType("application/json")
                         .content(json.writeValueAsString(body)))
                 .andExpect(status().isBadRequest())
@@ -200,7 +237,7 @@ class ContaAcessoSecurityTest {
   }
 
   @Test
-  void basicBloqueiaEquivalentesNulDeContaLegadaSemAlterarHash(
+  void loginBloqueiaEquivalentesNulDeContaLegadaSemAlterarHash(
       org.springframework.boot.test.system.CapturedOutput output) throws Exception {
     cadastro();
     // Encoder bruto é usado somente para simular a fixture insegura da auditoria.
@@ -211,7 +248,8 @@ class ContaAcessoSecurityTest {
     jdbc.update("UPDATE conta_acesso SET senha_hash=? WHERE pessoa_id=?", legado, pessoaId);
     for (int n : List.of(12, 13, 20)) {
       var erro =
-          mvc.perform(get("/api/contas-acesso/me").with(httpBasic(login, "\0".repeat(n))))
+          mvc.perform(
+                  get("/api/contas-acesso/me").with(bearerComCredenciais(login, "\0".repeat(n))))
               .andExpect(status().isUnauthorized())
               .andReturn()
               .getResponse()
@@ -219,7 +257,7 @@ class ContaAcessoSecurityTest {
       assertFalse(erro.contains(legado));
       mvc.perform(
               put("/api/contas-acesso/me/senha")
-                  .with(httpBasic(login, "\0".repeat(n)))
+                  .with(bearerComCredenciais(login, "\0".repeat(n)))
                   .contentType("application/json")
                   .content(
                       json.writeValueAsString(
@@ -314,8 +352,11 @@ class ContaAcessoSecurityTest {
                           if (!Set.of("get", "post", "put", "delete").contains(metodo)) return;
                           if (metodo.equals("get") && p.equals("/api/health")
                               || metodo.equals("post")
-                                  && Set.of("/api/pessoas", "/api/contas-acesso").contains(p))
-                            return;
+                                  && Set.of(
+                                          "/api/pessoas",
+                                          "/api/contas-acesso",
+                                          "/api/autenticacao/login")
+                                      .contains(p)) return;
                           try {
                             mvc.perform(
                                     request(
@@ -333,9 +374,9 @@ class ContaAcessoSecurityTest {
   }
 
   @Test
-  void basicCorretoConsultaContaSemExporHash() throws Exception {
+  void bearerRealConsultaContaSemExporHash() throws Exception {
     cadastro();
-    mvc.perform(get("/api/contas-acesso/me").with(httpBasic(login, senha)))
+    mvc.perform(get("/api/contas-acesso/me").with(bearerComCredenciais(login, senha)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.login").value(login))
         .andExpect(jsonPath("$.senhaHash").doesNotExist())
@@ -346,17 +387,21 @@ class ContaAcessoSecurityTest {
   void senhaErradaELoginInexistenteSaoGenericos() throws Exception {
     cadastro();
     var a =
-        mvc.perform(get("/api/contas-acesso/me").with(httpBasic(login, "incorreta-ficticia")))
+        mvc.perform(
+                get("/api/contas-acesso/me")
+                    .with(bearerComCredenciais(login, "incorreta-ficticia")))
             .andExpect(status().isUnauthorized())
             .andReturn()
             .getResponse();
     var b =
-        mvc.perform(get("/api/contas-acesso/me").with(httpBasic("nao-existe-" + login, senha)))
+        mvc.perform(
+                get("/api/contas-acesso/me")
+                    .with(bearerComCredenciais("nao-existe-" + login, senha)))
             .andExpect(status().isUnauthorized())
             .andReturn()
             .getResponse();
     assertEquals(a.getContentAsString(), b.getContentAsString());
-    assertTrue(a.getHeader("WWW-Authenticate").startsWith("Basic"));
+    assertTrue(a.getHeader("WWW-Authenticate").startsWith("Bearer"));
     assertFalse(a.getContentAsString().contains(login));
   }
 
@@ -428,7 +473,7 @@ class ContaAcessoSecurityTest {
     String nova = "Outra-" + UUID.randomUUID();
     mvc.perform(
             put("/api/contas-acesso/me/senha")
-                .with(httpBasic(login, senha))
+                .with(bearerComCredenciais(login, senha))
                 .contentType("application/json")
                 .content(json.writeValueAsString(Map.of("senhaAtual", senha, "novaSenha", nova))))
         .andExpect(status().isNoContent())
@@ -445,7 +490,7 @@ class ContaAcessoSecurityTest {
     for (String atual : List.of("senha-incorreta-ficticia", senha))
       mvc.perform(
               put("/api/contas-acesso/me/senha")
-                  .with(httpBasic(login, senha))
+                  .with(bearerComCredenciais(login, senha))
                   .contentType("application/json")
                   .content(
                       json.writeValueAsString(Map.of("senhaAtual", atual, "novaSenha", senha))))
@@ -628,7 +673,7 @@ class ContaAcessoSecurityTest {
     assertFalse(corrompido.equals(hash()));
     jdbc.update("UPDATE conta_acesso SET senha_hash=? WHERE pessoa_id=?", corrompido, pessoaId);
     var r =
-        mvc.perform(get("/api/contas-acesso/me").with(httpBasic(login, senha)))
+        mvc.perform(get("/api/contas-acesso/me").with(bearerComCredenciais(login, senha)))
             .andExpect(status().isUnauthorized())
             .andReturn()
             .getResponse()
@@ -654,7 +699,8 @@ class ContaAcessoSecurityTest {
         "INSERT INTO conta_acesso_perfil SELECT id,'ADMINISTRADOR' FROM conta_acesso WHERE"
             + " pessoa_id=?",
         pessoaId);
-    mvc.perform(get("/api/jogos").with(httpBasic(login, senha))).andExpect(status().isOk());
+    mvc.perform(get("/api/jogos").with(bearerComCredenciais(login, senha)))
+        .andExpect(status().isOk());
     assertEquals(2, details.loadUserByUsername(login).getAuthorities().size());
   }
 

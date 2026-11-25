@@ -19,13 +19,14 @@ public class OpenApiSegurancaConfig {
     return api -> {
       api.getComponents()
           .addSecuritySchemes(
-              "basicAuth",
+              "bearerAuth",
               new SecurityScheme()
                   .type(SecurityScheme.Type.HTTP)
-                  .scheme("basic")
+                  .scheme("bearer")
+                  .bearerFormat("JWT")
                   .description(
-                      "HTTP Basic stateless. Use HTTPS/TLS; Base64 não cifra credenciais."));
-      api.setSecurity(List.of(new SecurityRequirement().addList("basicAuth")));
+                      "JWT Bearer HS256 stateless. Use HTTPS/TLS; payload não é confidencial."));
+      api.setSecurity(List.of(new SecurityRequirement().addList("bearerAuth")));
       api.getComponents()
           .addSchemas(
               "ErroAutenticacao",
@@ -45,24 +46,27 @@ public class OpenApiSegurancaConfig {
                             boolean publica =
                                 method == PathItem.HttpMethod.GET && path.equals("/api/health")
                                     || method == PathItem.HttpMethod.POST
-                                        && Set.of("/api/pessoas", "/api/contas-acesso")
+                                        && Set.of(
+                                                "/api/pessoas",
+                                                "/api/contas-acesso",
+                                                "/api/autenticacao/login")
                                             .contains(path);
                             if (publica) op.setSecurity(List.of());
                             else {
                               op.setSecurity(
-                                  List.of(new SecurityRequirement().addList("basicAuth")));
+                                  List.of(new SecurityRequirement().addList("bearerAuth")));
                               op.getResponses()
                                   .addApiResponse(
                                       "401",
                                       new ApiResponse()
                                           .description(
-                                              "Credencial ausente, inválida, conta bloqueada ou"
-                                                  + " Pessoa inativa")
+                                              "Token ausente, inválido, alterado ou expirado;"
+                                                  + " bloqueio não revoga tokens emitidos")
                                           .addHeaderObject(
                                               "WWW-Authenticate",
                                               new Header()
                                                   .schema(new StringSchema())
-                                                  .description("Desafio HTTP Basic"))
+                                                  .description("Desafio Bearer"))
                                           .content(
                                               new Content()
                                                   .addMediaType(
@@ -83,6 +87,41 @@ public class OpenApiSegurancaConfig {
                                                                           "Autenticação necessária"
                                                                               + " ou credenciais"
                                                                               + " inválidas"))))));
+                            }
+                            if (path.equals("/api/autenticacao/login")) {
+                              for (String code : List.of("400", "401")) {
+                                op.getResponses()
+                                    .get(code)
+                                    .getContent()
+                                    .get("application/json")
+                                    .addExamples(
+                                        "Erro" + code,
+                                        new Example()
+                                            .value(
+                                                Map.of(
+                                                    "timestamp",
+                                                    "2026-11-05T12:00:00",
+                                                    "status",
+                                                    Integer.parseInt(code),
+                                                    "error",
+                                                    code.equals("400")
+                                                        ? "Bad Request"
+                                                        : "Unauthorized",
+                                                    "message",
+                                                    code.equals("400")
+                                                        ? "Dados inválidos"
+                                                        : "Login ou senha inválidos",
+                                                    "path",
+                                                    path,
+                                                    "fields",
+                                                    code.equals("400")
+                                                        ? Map.of(
+                                                            "login",
+                                                            "não deve estar em branco",
+                                                            "senha",
+                                                            "não deve estar em branco")
+                                                        : Map.of())));
+                              }
                             }
                             if (path.startsWith("/api/contas-acesso")) {
                               if (op.getResponses().containsKey("201"))

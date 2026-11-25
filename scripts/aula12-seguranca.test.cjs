@@ -1,5 +1,5 @@
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs');
-const doc = () => JSON.parse(fs.readFileSync('target/aula12-openapi.json'));
+const doc = () => JSON.parse(fs.readFileSync(process.env.JOGOS_OPENAPI_JSON || 'target/aula12-openapi.json'));
 test('padrões efetivamente exportados rejeitam NUL em toda posição e preservam Unicode sem NUL',()=>{
  for(const [name,fields] of [['ContaAcessoRequest',['senha']],['AlteracaoSenhaRequest',['senhaAtual','novaSenha']]])for(const field of fields){
    const s=doc().components.schemas[name].properties[field],p=new RegExp(s.pattern,'u');
@@ -24,7 +24,7 @@ test('coleção não guarda credenciais e herda Basic via variáveis',()=>{
  for(const key of ['authLogin','authPassword','authPasswordNova'])assert.equal(c.variable.find(v=>v.key===key).value,'');
 });
 test('relatório Newman sanitizado não contém headers Authorization utilizáveis',()=>{
- const r=JSON.parse(fs.readFileSync('target/aula12-newman.json'));
+ const r=JSON.parse(fs.readFileSync(process.env.JOGOS_NEWMAN_JSON || 'target/aula12-newman.json'));
  let checked=0;
  for(const e of r.run.executions) {
    assert(Array.isArray(e.request.header));

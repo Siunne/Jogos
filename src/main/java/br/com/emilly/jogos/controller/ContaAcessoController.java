@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(
     name = "Contas de acesso",
     description =
-        "Identidade de acesso independente dos papéis comerciais. HTTP Basic exige TLS fora do"
+        "Identidade de acesso independente dos papéis comerciais. JWT Bearer exige TLS fora do"
             + " laboratório local.")
 public class ContaAcessoController {
   private final ContaAcessoService service;
@@ -37,7 +37,7 @@ public class ContaAcessoController {
   @ApiResponses({
     @ApiResponse(
         responseCode = "201",
-        description = "Conta criada; Location aponta para /me, que exige Basic",
+        description = "Conta criada; Location aponta para /me, que exige Bearer",
         useReturnTypeSchema = true),
     @ApiResponse(
         responseCode = "400",
@@ -62,7 +62,8 @@ public class ContaAcessoController {
   @Operation(
       operationId = "consultarMinhaConta",
       summary = "Consultar própria conta",
-      description = "Exige Basic a cada chamada. Conta bloqueada ou Pessoa inativa não autentica.")
+      description =
+          "Exige JWT Bearer válido. Bloqueio impede novo login, mas não revoga tokens emitidos.")
   @ApiResponse(responseCode = "200", description = "Conta autenticada", useReturnTypeSchema = true)
   @GetMapping("/me")
   public ContaAcessoResponse propria(Principal principal) {
@@ -74,8 +75,8 @@ public class ContaAcessoController {
       summary = "Alterar própria senha",
       description =
           "Exige senha atual correta e nova diferente, mínimo12 caracteres e máximo72 bytes UTF-8."
-              + " Commit invalida a senha antiga nas próximas requisições; não há sessão ou retry"
-              + " automático.")
+              + " Commit invalida a senha antiga em novos logins, sem revogar JWT emitido; não há"
+              + " sessão ou retry automático.")
   @ApiResponses({
     @ApiResponse(
         responseCode = "204",

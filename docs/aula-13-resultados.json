@@ -1,0 +1,366 @@
+{
+  "data": "2026-11-16T21:51:34.183Z",
+  "ambiente": "Somente jogos_test; profiles documentais sem DataSource",
+  "baseline": {
+    "maven": 254,
+    "node": 19,
+    "newmanRequisicoes": 94,
+    "newmanVerificacoes": 239
+  },
+  "maven": {
+    "testes": 346,
+    "falhas": 0,
+    "erros": 0,
+    "ignorados": 0,
+    "aprovados": 346,
+    "classes": 33,
+    "execucoesNovas": 92,
+    "classesAnterioresPreservadas": 31
+  },
+  "node": {
+    "testes": 27,
+    "aprovados": 27,
+    "falhas": 0,
+    "ignorados": 0
+  },
+  "newman": {
+    "requisicoes": 98,
+    "verificacoes": 250,
+    "falhas": 0,
+    "operacoesCobertas": 42,
+    "relatorio": "sanitizado antes da gravação"
+  },
+  "concorrenciaPostgreSQL": {
+    "execucoes": 19,
+    "falhas": 0
+  },
+  "privacidade": {
+    "provasAnterioresPreservadas": 11,
+    "cenariosJWTCapturados": 3,
+    "garantia": "Limitada aos cenários/configuração executados"
+  },
+  "openapi": {
+    "operacoes": 42,
+    "caminhos": 28,
+    "schemas": 36,
+    "grupos": 10,
+    "esquema": "bearerAuth",
+    "jsonYamlEntregaEquivalentes": true,
+    "validadorProprio": "Subconjunto de JSON Schema; não certificação integral OpenAPI"
+  },
+  "swagger": {
+    "instante": "2026-11-05T22:36:21.015Z",
+    "operacoes": 42,
+    "loginUI": 200,
+    "bearerUI": 200,
+    "captura": "docs/evidencias/aula-13-swagger-bearer.png",
+    "sanitizacao": "Login removido e curl com Authorization removido antes da captura",
+    "interacao": "Try it out/Execute reais; Authorize via AuthActions, não preenchimento manual do diálogo"
+  },
+  "httpFinal": {
+    "json": 200,
+    "swaggerHtml": 200,
+    "health": 200,
+    "anonimo": 401,
+    "contratoAtualIgualAoExportado": true
+  },
+  "preservacao": {
+    "arquivos": 21,
+    "alterados": []
+  },
+  "migracoes": {
+    "changesetsExistentes": 49,
+    "novas": 0,
+    "alteradas": 0
+  },
+  "matriz": {
+    "total": 131,
+    "counts": {
+      "ATENDIDO": 129,
+      "PARCIAL": 0,
+      "NÃO ATENDIDO": 1,
+      "NÃO VERIFICADO": 1
+    }
+  },
+  "arquivos": {
+    "candidatos": 41,
+    "modificados": 14,
+    "novos": 27,
+    "arquivosCriticos": 21,
+    "historicosAlterados": []
+  },
+  "git": {
+    "branch": "main",
+    "head": "400063010adbd7a8b87d2c93f15a2abe5bd85811",
+    "operacoesDeEscrita": false,
+    "publicado": false
+  },
+  "classesExecutadas": [
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiAutenticacaoTest",
+      "testes": 4,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiComercialTest",
+      "testes": 7,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiConcorrenciaTest",
+      "testes": 1,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiDocumentationTest",
+      "testes": 19,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiProfilesTest",
+      "testes": 3,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.api.OpenApiUnicodeEquivalenceTest",
+      "testes": 2,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.application.ConcorrenciaEstoqueTest",
+      "testes": 19,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.application.JogoServiceTest",
+      "testes": 4,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.application.VendaServiceTest",
+      "testes": 8,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.config.PersistencePrivacyFilterTest",
+      "testes": 4,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.config.PersistencePrivacyIntegrationTest",
+      "testes": 2,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.controller.Aula08ControllerTest",
+      "testes": 24,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.controller.Aula10ControllerTest",
+      "testes": 15,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.controller.ConsultasAula07Test",
+      "testes": 5,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.controller.GeneroJogoControllerTest",
+      "testes": 5,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.controller.TextoNormalizadoHttpTest",
+      "testes": 8,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.Aula08DomainTest",
+      "testes": 6,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.DocumentoFiscalTest",
+      "testes": 22,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.GeneroJogoTest",
+      "testes": 5,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.JogoTest",
+      "testes": 7,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.PessoaTest",
+      "testes": 6,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.TextoNormalizadoTest",
+      "testes": 6,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.domain.VendaTest",
+      "testes": 9,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.JogosApplicationTests",
+      "testes": 1,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.MigracaoComercialTest",
+      "testes": 5,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.MigracaoContaAcessoTest",
+      "testes": 2,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.MigracaoGeneroTest",
+      "testes": 1,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.PersistenciaJpaTest",
+      "testes": 4,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.security.ContaAcessoSecurityTest",
+      "testes": 39,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.security.JwtConfigurationTest",
+      "testes": 6,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.security.JwtSecurityTest",
+      "testes": 86,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.security.PoliticaSenhaTest",
+      "testes": 10,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    },
+    {
+      "classe": "br.com.emilly.jogos.UnicidadeGeneroTest",
+      "testes": 1,
+      "falhas": 0,
+      "erros": 0,
+      "ignorados": 0
+    }
+  ],
+  "artefatosFinais": {
+    "maven": "target/correcao13-maven-verificado.log",
+    "node": "target/correcao13-node-verificado.log",
+    "newman": "target/correcao13-newman-verificado.log",
+    "adversarial": "target/correcao13-adversarial.json"
+  },
+  "correcaoDosClaims": {
+    "faseVermelha": {
+      "execucoes": 79,
+      "falhasEsperadas": 10
+    },
+    "faseVermelhaFracoes": {
+      "execucoes": 3,
+      "falhasEsperadas": 3
+    },
+    "execucoesNovas": 56,
+    "classesAnterioresComContagemReduzida": [],
+    "adversarialHTTP": {
+      "requisicoes": 51,
+      "falhas": 0,
+      "http500": 0
+    },
+    "metodo": "JWSObject e JsonMapper privado com BigInteger/BigDecimal antes da coerção; Nimbus delegado preservado",
+    "artefatos": {
+      "maven": "target/correcao13-maven-verificado.log",
+      "node": "target/correcao13-node-verificado.log",
+      "newman": "target/correcao13-newman-verificado.log",
+      "adversarial": "target/correcao13-adversarial.json"
+    },
+    "faseVermelhaPrecisao": {
+      "execucoes": 6,
+      "falhasEsperadas": 3
+    },
+    "observacaoInfraestrutura": "Primeira tentativa externa anterior à inicialização falhou; repetição após aplicação pronta aprovada."
+  }
+}

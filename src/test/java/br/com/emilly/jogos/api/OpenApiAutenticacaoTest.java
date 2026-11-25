@@ -59,10 +59,10 @@ class OpenApiAutenticacaoTest {
   }
 
   @Test
-  void somenteOperacoesPublicasNaoExigemBasic() throws Exception {
+  void somenteOperacoesPublicasNaoExigemBearer() throws Exception {
     var d = doc();
-    assertEquals("http", d.at("/components/securitySchemes/basicAuth/type").asText());
-    assertEquals("basic", d.at("/components/securitySchemes/basicAuth/scheme").asText());
+    assertEquals("http", d.at("/components/securitySchemes/bearerAuth/type").asText());
+    assertEquals("bearer", d.at("/components/securitySchemes/bearerAuth/scheme").asText());
     int[] total = {0};
     d.path("paths")
         .fields()
@@ -77,11 +77,14 @@ class OpenApiAutenticacaoTest {
                           boolean publica =
                               o.getKey().equals("get") && p.getKey().equals("/api/health")
                                   || o.getKey().equals("post")
-                                      && Set.of("/api/pessoas", "/api/contas-acesso")
+                                      && Set.of(
+                                              "/api/pessoas",
+                                              "/api/contas-acesso",
+                                              "/api/autenticacao/login")
                                           .contains(p.getKey());
                           if (publica) assertTrue(o.getValue().path("security").isEmpty());
                           else {
-                            assertTrue(o.getValue().path("security").get(0).has("basicAuth"));
+                            assertTrue(o.getValue().path("security").get(0).has("bearerAuth"));
                             assertEquals(
                                 "#/components/schemas/ErroAutenticacao",
                                 o.getValue()
@@ -89,7 +92,7 @@ class OpenApiAutenticacaoTest {
                                     .asText());
                           }
                         }));
-    assertEquals(41, total[0]);
+    assertEquals(42, total[0]);
   }
 
   @Test
@@ -117,13 +120,13 @@ class OpenApiAutenticacaoTest {
                     .andReturn()
                     .getResponse()
                     .getContentAsByteArray());
-    var e = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-12-openapi.yaml")));
+    var e = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-13-openapi.yaml")));
     for (String k : List.of("info", "paths", "components", "tags", "security")) {
       assertEquals(d.path(k), y.path(k));
       assertEquals(d.path(k), e.path(k));
     }
-    assertEquals(27, d.path("paths").size());
-    assertEquals(34, d.at("/components/schemas").size());
-    assertEquals(9, d.path("tags").size());
+    assertEquals(28, d.path("paths").size());
+    assertEquals(36, d.at("/components/schemas").size());
+    assertEquals(10, d.path("tags").size());
   }
 }
