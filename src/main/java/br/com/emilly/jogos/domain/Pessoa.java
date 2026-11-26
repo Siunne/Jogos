@@ -6,6 +6,7 @@ import java.time.*;
 import java.util.*;
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Table(name = "pessoa")
 public class Pessoa {
   @Id

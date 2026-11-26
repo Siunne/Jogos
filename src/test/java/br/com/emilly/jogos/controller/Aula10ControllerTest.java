@@ -123,6 +123,7 @@ class Aula10ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void pessoaAlteraStatusSemExcluirPapeis() throws Exception {
     chamar(put("/api/pessoas/{id}/status", f.pessoa()).content("{\"status\":\"INATIVO\"}"), 200);
     chamar(get("/api/clientes/{id}", f.cliente()), 200);
@@ -183,6 +184,7 @@ class Aula10ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void papelExigePessoaAtiva() throws Exception {
     var p = pessoas.cadastrar("Inativa", UUID.randomUUID() + "@example.com", DocumentosTeste.cpf());
     pessoas.status(p.getId(), Status.INATIVO);
@@ -222,6 +224,7 @@ class Aula10ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void vendaAdicionaRemoveReincluiEValidaSnapshot() throws Exception {
     Long id = abrir();
     var v = adicionar(id, f.jogo1(), "2");
@@ -328,6 +331,7 @@ class Aula10ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void referenciasInexistentesRetornam404() throws Exception {
     for (String recurso : List.of("pessoas", "clientes", "colaboradores", "vendas"))
       chamar(get("/api/" + recurso + "/" + Long.MAX_VALUE), 404);
@@ -341,12 +345,13 @@ class Aula10ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void jogoVendidoNaoPodeSerExcluidoEHistoricoSobreviveInativacao() throws Exception {
     Long id = abrir();
     adicionar(id, f.jogo1(), "1");
     vendas.finalizar(id);
     chamar(delete("/api/jogos/{id}", f.jogo1()), 409);
-    pessoas.status(f.pessoa(), Status.INATIVO);
+    chamar(put("/api/pessoas/{id}/status", f.pessoa()).contentType("application/json").content("{\"status\":\"INATIVO\"}"), 200);
     var v = chamar(get("/api/vendas/{id}", id), 200);
     assertEquals("FINALIZADA", v.path("status").asText());
     assertEquals(1, v.path("itens").size());

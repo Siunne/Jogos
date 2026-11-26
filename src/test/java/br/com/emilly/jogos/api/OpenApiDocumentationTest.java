@@ -144,6 +144,8 @@ class OpenApiDocumentationTest {
             "post /api/vendas/{id}/cancelamento",
             "post /api/autenticacao/login",
             "post /api/contas-acesso",
+            "put /api/contas-acesso/{id}/perfis",
+            "put /api/contas-acesso/{id}/status",
             "get /api/contas-acesso/me",
             "put /api/contas-acesso/me/senha"),
         operations.keySet());
@@ -270,13 +272,13 @@ class OpenApiDocumentationTest {
                                   ? Set.of("200")
                                   : path.equals("put /api/contas-acesso/me/senha")
                                       ? Set.of("204", "400")
-                                      : expected.get(path));
-              if (!Set.of(
-                      "get /api/health",
-                      "post /api/pessoas",
-                      "post /api/contas-acesso",
-                      "post /api/autenticacao/login")
-                  .contains(path)) codigos.add("401");
+                                      : path.startsWith("put /api/contas-acesso/")
+                                          ? Set.of("200", "400", "404") : expected.get(path));
+              if (!Set.of("get /api/health", "post /api/autenticacao/login").contains(path))
+                codigos.add("401");
+              if (path.startsWith("delete ") || Set.of("post /api/contas-acesso",
+                  "put /api/contas-acesso/{id}/perfis", "put /api/contas-acesso/{id}/status",
+                  "put /api/pessoas/{id}/status").contains(path)) codigos.add("403");
               assertEquals(codigos, chaves(op.path("responses")), path);
               op.path("responses")
                   .fields()
@@ -288,7 +290,8 @@ class OpenApiDocumentationTest {
                               response.getKey().equals("401")
                                       && !path.contains("/autenticacao/login")
                                   ? "#/components/schemas/ErroAutenticacao"
-                                  : "#/components/schemas/ApiError",
+                                  : response.getKey().equals("403") ? "#/components/schemas/ErroAutorizacao"
+                                      : "#/components/schemas/ApiError",
                               value.at("/content/application~1json/schema/$ref").asText(),
                               path);
                         } else if (response.getKey().equals("204")) {
@@ -553,6 +556,11 @@ class OpenApiDocumentationTest {
                                   .at("/content/application~1json/examples/Erro" + code + "/value");
                           assertFalse(example.isMissingNode(), path);
                           assertEquals(code, example.path("status").asInt(), path);
+                          if (code == 403) {
+                            assertEquals(Set.of("status", "message"), chaves(example));
+                            assertEquals("Acesso negado", example.path("message").asText());
+                            return;
+                          }
                           if (code == 401 && !path.contains("/autenticacao/login")) {
                             assertEquals(Set.of("status", "message"), chaves(example));
                             assertEquals(
@@ -614,6 +622,7 @@ class OpenApiDocumentationTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void exemplos400DasOperacoesCorrespondemAoHandlerReal() throws Exception {
     for (var entry : operacoes(documento()).entrySet()) {
       var op = entry.getValue();
@@ -690,7 +699,7 @@ class OpenApiDocumentationTest {
   void contratoExportadoEReproduzivelETodasAsReferenciasResolvem() throws Exception {
     var doc = documento();
     var exportado =
-        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-13-openapi.yaml")));
+        Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-14-openapi.yaml")));
     // A URL de servidor depende da porta usada na captura; o contrato não depende dela.
     for (String part : List.of("openapi", "info", "paths", "components", "tags", "externalDocs")) {
       assertEquals(doc.path(part), exportado.path(part), part);

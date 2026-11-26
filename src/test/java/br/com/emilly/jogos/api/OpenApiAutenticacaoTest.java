@@ -77,11 +77,7 @@ class OpenApiAutenticacaoTest {
                           boolean publica =
                               o.getKey().equals("get") && p.getKey().equals("/api/health")
                                   || o.getKey().equals("post")
-                                      && Set.of(
-                                              "/api/pessoas",
-                                              "/api/contas-acesso",
-                                              "/api/autenticacao/login")
-                                          .contains(p.getKey());
+                                      && p.getKey().equals("/api/autenticacao/login");
                           if (publica) assertTrue(o.getValue().path("security").isEmpty());
                           else {
                             assertTrue(o.getValue().path("security").get(0).has("bearerAuth"));
@@ -92,7 +88,7 @@ class OpenApiAutenticacaoTest {
                                     .asText());
                           }
                         }));
-    assertEquals(42, total[0]);
+    assertEquals(44, total[0]);
   }
 
   @Test
@@ -120,13 +116,13 @@ class OpenApiAutenticacaoTest {
                     .andReturn()
                     .getResponse()
                     .getContentAsByteArray());
-    var e = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-13-openapi.yaml")));
+    var e = Yaml.mapper().readTree(Files.readAllBytes(Path.of("docs/aula-14-openapi.yaml")));
     for (String k : List.of("info", "paths", "components", "tags", "security")) {
       assertEquals(d.path(k), y.path(k));
       assertEquals(d.path(k), e.path(k));
     }
-    assertEquals(28, d.path("paths").size());
-    assertEquals(36, d.at("/components/schemas").size());
+    assertEquals(30, d.path("paths").size());
+    assertEquals(39, d.at("/components/schemas").size());
     assertEquals(10, d.path("tags").size());
   }
 }

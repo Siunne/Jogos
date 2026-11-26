@@ -72,7 +72,7 @@ class JwtSecurityTest {
 
   @Autowired MockMvc mvc;
   @Autowired PessoaService pessoas;
-  @Autowired ContaAcessoService contas;
+  @Autowired org.springframework.security.crypto.password.PasswordEncoder encoder;
   @Autowired ContaAcessoRepository repository;
   @Autowired JdbcTemplate jdbc;
   @Autowired TransactionTemplate tx;
@@ -94,7 +94,7 @@ class JwtSecurityTest {
         pessoas
             .cadastrar("Pessoa fictícia JWT", login + "@example.invalid", DocumentosTeste.cpf())
             .getId();
-    contas.cadastrar(pessoa, login, senha);
+    repository.saveAndFlush(new br.com.emilly.jogos.domain.ContaAcesso(pessoas.buscar(pessoa), login, encoder.encode(senha)));
   }
 
   @AfterEach
@@ -352,7 +352,7 @@ class JwtSecurityTest {
   @Test
   void pessoaInativaImpedeNovoLoginMasNaoRevogaJWT() throws Exception {
     String t = token();
-    pessoas.status(pessoa, Status.INATIVO);
+    jdbc.update("UPDATE pessoa SET status='INATIVO' WHERE id=?", pessoa);
     login(login, senha, 401);
     acesso(t, 200);
   }
@@ -455,7 +455,12 @@ class JwtSecurityTest {
 
   @Test
   void perfisInvalidosNaoProduzemErroInterno() throws Exception {
-    acesso(assinar(Map.of("perfis", List.of("INVENTADO")), JWSAlgorithm.HS256), 401);
+    for (Object invalido : List.of(List.of(), "OPERADOR", Map.of("perfil", "OPERADOR"),
+        1, true, List.of("INVENTADO"), List.of("ROLE_ADMINISTRADOR"), List.of("administrador"),
+        List.of(" ADMINISTRADOR "), List.of("OPERADOR", "INVENTADO"))) {
+      acesso(assinar(Map.of("perfis", invalido), JWSAlgorithm.HS256), 401);
+    }
+    acesso(assinar(Map.of("perfis", List.of("OPERADOR", "OPERADOR")), JWSAlgorithm.HS256), 200);
     acesso(assinar(Map.of("perfis", Arrays.asList((Object) null)), JWSAlgorithm.HS256), 401);
   }
 

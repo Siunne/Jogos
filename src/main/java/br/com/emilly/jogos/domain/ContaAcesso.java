@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Table(name = "conta_acesso")
 public class ContaAcesso {
   @Id
@@ -67,6 +68,19 @@ public class ContaAcesso {
 
   public boolean podeAutenticar() {
     return status == StatusContaAcesso.ATIVA && pessoa.getStatus() == Status.ATIVO;
+  }
+
+  public void substituirPerfis(Set<PerfilAcesso> novos) {
+    if (novos == null || novos.isEmpty() || novos.stream().anyMatch(Objects::isNull))
+      throw new IllegalArgumentException("A conta deve possuir ao menos um perfil válido");
+    var copia = Set.copyOf(novos);
+    perfis.clear();
+    perfis.addAll(copia);
+  }
+
+  public void concederPerfil(PerfilAcesso perfil) {
+    if (perfil == null) throw new IllegalArgumentException("Perfil inválido");
+    perfis.add(perfil);
   }
 
   public void bloquear() {

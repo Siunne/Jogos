@@ -37,6 +37,17 @@ public class OpenApiSegurancaConfig {
                       new StringSchema()
                           .example("Autenticação necessária ou credenciais inválidas"))
                   .required(List.of("status", "message")));
+      api.getComponents().addSchemas("ErroAutorizacao",
+          new ObjectSchema()
+              .addProperty("status", new IntegerSchema().example(403))
+              .addProperty("message", new StringSchema().example("Acesso negado"))
+              .required(List.of("status", "message")));
+      var schemas = api.getComponents().getSchemas();
+      var perfis = new StringSchema();
+      perfis.setEnum(List.of("OPERADOR", "ADMINISTRADOR"));
+      schemas.get("PerfisContaRequest").addProperty("perfis",
+          new ArraySchema().items(perfis).minItems(1)).required(List.of("perfis"));
+      schemas.remove("JsonNode");
       api.getPaths()
           .forEach(
               (path, item) ->
@@ -46,11 +57,7 @@ public class OpenApiSegurancaConfig {
                             boolean publica =
                                 method == PathItem.HttpMethod.GET && path.equals("/api/health")
                                     || method == PathItem.HttpMethod.POST
-                                        && Set.of(
-                                                "/api/pessoas",
-                                                "/api/contas-acesso",
-                                                "/api/autenticacao/login")
-                                            .contains(path);
+                                        && path.equals("/api/autenticacao/login");
                             if (publica) op.setSecurity(List.of());
                             else {
                               op.setSecurity(
@@ -87,6 +94,27 @@ public class OpenApiSegurancaConfig {
                                                                           "Autenticação necessária"
                                                                               + " ou credenciais"
                                                                               + " inválidas"))))));
+                            }
+                            boolean administrativa =
+                                method == PathItem.HttpMethod.DELETE
+                                    || method == PathItem.HttpMethod.POST
+                                        && path.equals("/api/contas-acesso")
+                                    || method == PathItem.HttpMethod.PUT
+                                        && Set.of("/api/contas-acesso/{id}/perfis",
+                                            "/api/contas-acesso/{id}/status",
+                                            "/api/pessoas/{id}/status").contains(path);
+                            if (administrativa) {
+                              String descricao = op.getDescription();
+                              if (descricao == null || !descricao.contains("Exige ADMINISTRADOR."))
+                                op.setDescription("Exige ADMINISTRADOR. " + (descricao == null ? "" : descricao));
+                              op.getResponses().addApiResponse("403",
+                                  new ApiResponse().description("Perfil insuficiente")
+                                      .content(new Content().addMediaType("application/json",
+                                          new MediaType().schema(new Schema<>()
+                                              .$ref("#/components/schemas/ErroAutorizacao"))
+                                              .addExamples("Erro403",
+                                                  new Example().value(Map.of("status", 403,
+                                                      "message", "Acesso negado"))))));
                             }
                             if (path.equals("/api/autenticacao/login")) {
                               for (String code : List.of("400", "401")) {
@@ -138,12 +166,13 @@ public class OpenApiSegurancaConfig {
                                         if (!Set.of("400", "404", "409").contains(code)) return;
                                         var message =
                                             code.equals("400")
-                                                ? "Dados inválidos"
+                                                ? path.endsWith("/perfis") ? "Informe ao menos um perfil"
+                                                    : path.endsWith("/status") ? "Status inválido" : "Dados inválidos"
                                                 : code.equals("404")
-                                                    ? "Pessoa não encontrada"
+                                                    ? path.contains("{id}") ? "Conta não encontrada" : "Pessoa não encontrada"
                                                     : "Login já cadastrado";
                                         var fields =
-                                            code.equals("400")
+                                            code.equals("400") && !path.contains("{id}")
                                                 ? (path.endsWith("/senha")
                                                     ? Map.of(
                                                         "senhaAtual",
@@ -179,7 +208,7 @@ public class OpenApiSegurancaConfig {
                                                             "message",
                                                             message,
                                                             "path",
-                                                            path,
+                                                            path.replace("{id}", "1"),
                                                             "fields",
                                                             fields)));
                                       });

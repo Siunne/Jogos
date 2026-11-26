@@ -10,6 +10,7 @@ import java.math.*;
 import java.time.*;
 import java.util.*;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,7 @@ public class VendaService {
   }
 
   @Transactional
+  @PreAuthorize("hasRole('ADMINISTRADOR')")
   public void removerItem(Long id, Long itemId) {
     buscarParaAlterar(id).removerItem(itemId);
   }

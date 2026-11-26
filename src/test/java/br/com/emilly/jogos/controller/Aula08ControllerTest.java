@@ -255,6 +255,7 @@ class Aula08ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void excluirJogo() throws Exception {
     mvc.perform(delete("/api/jogos/{id}", jogoId))
         .andExpect(status().isNoContent())
@@ -263,6 +264,7 @@ class Aula08ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void excluirGeneroLivre() throws Exception {
     mvc.perform(delete("/api/generos/{id}", outroGeneroId))
         .andExpect(status().isNoContent())
@@ -271,6 +273,7 @@ class Aula08ControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void excluirGeneroEmUso() throws Exception {
     mvc.perform(delete("/api/generos/{id}", generoId))
         .andExpect(status().isConflict())

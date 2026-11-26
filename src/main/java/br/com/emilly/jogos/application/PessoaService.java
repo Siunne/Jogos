@@ -8,6 +8,7 @@ import java.math.*;
 import java.time.*;
 import java.util.*;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class PessoaService {
   private final PessoaRepository repository;
 
-  public PessoaService(PessoaRepository repository) {
+  private final ContaAcessoRepository contas;
+  private final AdministracaoContas administracao;
+
+  public PessoaService(PessoaRepository repository, ContaAcessoRepository contas, AdministracaoContas administracao) {
     this.repository = repository;
+    this.contas = contas;
+    this.administracao = administracao;
   }
 
   public Pessoa buscar(Long id) {
@@ -35,6 +41,7 @@ public class PessoaService {
 
   @Transactional
   public Pessoa alterar(Long id, String nome, String email, String cpf) {
+    administracao.serializar();
     var p = buscar(id);
     var candidato = new Pessoa(nome, email, cpf);
     validar(candidato, id);
@@ -56,11 +63,16 @@ public class PessoaService {
   }
 
   @Transactional
+  @PreAuthorize("hasRole('ADMINISTRADOR')")
   public Pessoa status(Long id, Status status) {
+    administracao.serializar();
     var p = buscar(id);
     if (status == null) throw new IllegalArgumentException("Status obrigatório");
     if (status == Status.ATIVO) p.ativar();
-    else p.inativar();
+    else {
+      contas.findByPessoaId(id).ifPresent(administracao::exigirOutraConta);
+      p.inativar();
+    }
     return p;
   }
 

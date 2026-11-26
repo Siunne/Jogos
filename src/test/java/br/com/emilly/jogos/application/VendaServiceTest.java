@@ -135,6 +135,7 @@ class VendaServiceTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void participanteInativoImpedeFinalizacaoMasMantemHistorico() {
     var outroVendedor = ComercialFixture.criar(em, tx);
     Long id = vendas.cadastrar(dados.cliente(), outroVendedor.vendedor()).getId();
@@ -146,6 +147,7 @@ class VendaServiceTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "fixture-admin", roles = "ADMINISTRADOR")
   void somenteVendedorInativoTambemImpedeFinalizacao() {
     var outroVendedor = ComercialFixture.criar(em, tx);
     Long id = vendas.cadastrar(dados.cliente(), outroVendedor.vendedor()).getId();

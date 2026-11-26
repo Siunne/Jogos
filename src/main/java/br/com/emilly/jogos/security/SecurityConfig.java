@@ -1,6 +1,13 @@
 package br.com.emilly.jogos.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.List;
+import br.com.emilly.jogos.domain.PerfilAcesso;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +19,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
   @Bean
   org.springframework.security.authentication.AuthenticationManager authenticationManager(
@@ -22,18 +30,18 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-  private org.springframework.security.oauth2.server.resource.authentication
-          .JwtAuthenticationConverter
-      jwtAuthenticationConverter() {
-    var authorities =
-        new org.springframework.security.oauth2.server.resource.authentication
-            .JwtGrantedAuthoritiesConverter();
-    authorities.setAuthoritiesClaimName("perfis");
-    authorities.setAuthorityPrefix("ROLE_");
-    var converter =
-        new org.springframework.security.oauth2.server.resource.authentication
-            .JwtAuthenticationConverter();
-    converter.setJwtGrantedAuthoritiesConverter(authorities);
+  @Bean
+  JwtAuthenticationConverter jwtAuthenticationConverter() {
+    var converter = new JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+      if (!(jwt.getClaims().get("perfis") instanceof Collection<?> perfis)) return List.of();
+      return perfis.stream()
+          .filter(role -> PerfilAcesso.OPERADOR.name().equals(role)
+              || PerfilAcesso.ADMINISTRADOR.name().equals(role))
+          .distinct()
+          .<GrantedAuthority>map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+          .toList();
+    });
     return converter;
   }
 
@@ -84,7 +92,8 @@ public class SecurityConfig {
 
   @Bean
   SecurityFilterChain securityFilterChain(
-      HttpSecurity http, AuthenticationEntryPoint credenciaisInvalidas) throws Exception {
+      HttpSecurity http, AuthenticationEntryPoint credenciaisInvalidas,
+      JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .requestCache(AbstractHttpConfigurer::disable)
@@ -103,17 +112,25 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(
                         HttpMethod.POST,
-                        "/api/pessoas",
-                        "/api/contas-acesso",
                         "/api/autenticacao/login")
                     .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .exceptionHandling(e -> e.authenticationEntryPoint(credenciaisInvalidas))
+                    .requestMatchers(HttpMethod.POST, "/api/contas-acesso").hasRole("ADMINISTRADOR")
+                    .requestMatchers(HttpMethod.PUT, "/api/contas-acesso/*/perfis",
+                        "/api/contas-acesso/*/status", "/api/pessoas/*/status").hasRole("ADMINISTRADOR")
+                    .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMINISTRADOR")
+                    .requestMatchers("/api/**").hasAnyRole("OPERADOR", "ADMINISTRADOR")
+                    .anyRequest().denyAll())
+        .exceptionHandling(e -> e.authenticationEntryPoint(credenciaisInvalidas)
+            .accessDeniedHandler((request, response, failure) -> {
+              response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+              response.setContentType("application/json");
+              response.setCharacterEncoding("UTF-8");
+              response.getWriter().write("{\"status\":403,\"message\":\"Acesso negado\"}");
+            }))
         .httpBasic(AbstractHttpConfigurer::disable)
         .oauth2ResourceServer(
             o ->
-                o.jwt(j -> j.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                o.jwt(j -> j.jwtAuthenticationConverter(jwtAuthenticationConverter))
                     .authenticationEntryPoint(credenciaisInvalidas))
         .build();
   }

@@ -79,10 +79,39 @@ class ContaAcessoSecurityTest {
     return json.writeValueAsString(Map.of("pessoaId", id, "login", l, "senha", s));
   }
 
+  org.springframework.test.web.servlet.request.RequestPostProcessor administrador() throws Exception {
+    if (admin == null) {
+      String nome = "adm-" + UUID.randomUUID();
+      var id = pessoa();
+      tx.executeWithoutResult(status -> {
+        var conta = new ContaAcesso(pessoas.buscar(id), nome, encoder.encode(senha));
+        conta.concederPerfil(PerfilAcesso.ADMINISTRADOR);
+        repository.saveAndFlush(conta);
+      });
+      admin = bearerComCredenciais(nome, senha);
+    }
+    return admin;
+  }
+
+  private org.springframework.test.web.servlet.request.RequestPostProcessor admin;
+
+  private <T> T comAdmin(java.util.function.Supplier<T> operacao) {
+    var anterior = org.springframework.security.core.context.SecurityContextHolder.getContext();
+    var contexto = org.springframework.security.core.context.SecurityContextHolder.createEmptyContext();
+    contexto.setAuthentication(org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated(
+        "fixture-admin", null, List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))));
+    org.springframework.security.core.context.SecurityContextHolder.setContext(contexto);
+    try {
+      return operacao.get();
+    } finally {
+      org.springframework.security.core.context.SecurityContextHolder.setContext(anterior);
+    }
+  }
+
   String cadastro() throws Exception {
     var r =
         mvc.perform(
-                post("/api/contas-acesso")
+                post("/api/contas-acesso").with(administrador())
                     .contentType("application/json")
                     .content(payload(pessoaId, login, senha)))
             .andExpect(status().isCreated())
@@ -157,7 +186,7 @@ class ContaAcessoSecurityTest {
             senha.substring(0, 10) + "\0" + senha.substring(10))) {
       var erro =
           mvc.perform(
-                  post("/api/contas-acesso")
+                  post("/api/contas-acesso").with(administrador())
                       .contentType("application/json")
                       .content(payload(pessoaId, login, invalida)))
               .andExpect(status().isBadRequest())
@@ -169,7 +198,7 @@ class ContaAcessoSecurityTest {
       assertFalse(erro.contains("{bcrypt}"));
       assertEquals(0, contasPersistidasIndependentemente());
       assertThrows(
-          IllegalArgumentException.class, () -> contas.cadastrar(pessoaId, login, invalida));
+          IllegalArgumentException.class, () -> comAdmin(() -> contas.cadastrar(pessoaId, login, invalida)));
       assertEquals(0, contasPersistidasIndependentemente());
     }
     assertFalse(output.getAll().contains(senha));
@@ -278,7 +307,7 @@ class ContaAcessoSecurityTest {
       {"Frase-\u001b-" + UUID.randomUUID(), "Frase-\u001b-" + UUID.randomUUID()}
     };
     for (var par : pares) {
-      if (contasPersistidasIndependentemente() == 0) contas.cadastrar(pessoaId, login, par[0]);
+      if (contasPersistidasIndependentemente() == 0) comAdmin(() -> contas.cadastrar(pessoaId, login, par[0]));
       else
         tx.executeWithoutResult(
             s ->
@@ -307,10 +336,10 @@ class ContaAcessoSecurityTest {
   }
 
   @Test
-  void bootstrapPessoaEContaSemAutenticacao() throws Exception {
+  void cadastroPessoaEContaComAdministrador() throws Exception {
     var r =
         mvc.perform(
-                post("/api/pessoas")
+                post("/api/pessoas").with(administrador())
                     .contentType("application/json")
                     .content(
                         json.writeValueAsString(
@@ -327,7 +356,7 @@ class ContaAcessoSecurityTest {
     Long id = json.readTree(r.getContentAsString()).path("id").asLong();
     ids.add(id);
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(id, login, senha)))
         .andExpect(status().isCreated());
@@ -352,11 +381,7 @@ class ContaAcessoSecurityTest {
                           if (!Set.of("get", "post", "put", "delete").contains(metodo)) return;
                           if (metodo.equals("get") && p.equals("/api/health")
                               || metodo.equals("post")
-                                  && Set.of(
-                                          "/api/pessoas",
-                                          "/api/contas-acesso",
-                                          "/api/autenticacao/login")
-                                      .contains(p)) return;
+                                  && p.equals("/api/autenticacao/login")) return;
                           try {
                             mvc.perform(
                                     request(
@@ -370,7 +395,7 @@ class ContaAcessoSecurityTest {
                                 "Rota protegida falhou: " + metodo + " " + p, e);
                           }
                         }));
-    assertEquals(38, count[0]);
+    assertEquals(42, count[0]);
   }
 
   @Test
@@ -416,15 +441,15 @@ class ContaAcessoSecurityTest {
   @Test
   void pessoaInativaNaoAutentica() throws Exception {
     cadastro();
-    pessoas.status(pessoaId, Status.INATIVO);
+    comAdmin(() -> pessoas.status(pessoaId, Status.INATIVO));
     autentica(senha, 401);
   }
 
   @Test
   void pessoaInativaNaoRecebeConta() throws Exception {
-    pessoas.status(pessoaId, Status.INATIVO);
+    comAdmin(() -> pessoas.status(pessoaId, Status.INATIVO));
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, login, senha)))
         .andExpect(status().isBadRequest());
@@ -436,7 +461,7 @@ class ContaAcessoSecurityTest {
     ((com.fasterxml.jackson.databind.node.ObjectNode) p).putArray("perfis").add("ADMINISTRADOR");
     ((com.fasterxml.jackson.databind.node.ObjectNode) p).put("status", "BLOQUEADA");
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(json.writeValueAsString(p)))
         .andExpect(status().isCreated())
@@ -459,7 +484,7 @@ class ContaAcessoSecurityTest {
   void saltProduzHashesDiferentesParaMesmaSenha() throws Exception {
     cadastro();
     String h = hash();
-    var outra = contas.cadastrar(pessoa(), login + "x", senha);
+    var outra = comAdmin(() -> contas.cadastrar(pessoa(), login + "x", senha));
     String h2 =
         jdbc.queryForObject(
             "SELECT senha_hash FROM conta_acesso WHERE id=?", String.class, outra.id());
@@ -503,7 +528,7 @@ class ContaAcessoSecurityTest {
   void loginDuplicadoIgnoraCaixaEEspacosU0020() throws Exception {
     cadastro();
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoa(), "  " + login.toUpperCase(Locale.ROOT) + "  ", senha)))
         .andExpect(status().isConflict());
@@ -513,7 +538,7 @@ class ContaAcessoSecurityTest {
   void pessoaSoRecebeUmaConta() throws Exception {
     cadastro();
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, login + "x", senha)))
         .andExpect(status().isConflict());
@@ -522,7 +547,7 @@ class ContaAcessoSecurityTest {
   @Test
   void referenciaInexistenteRetorna404() throws Exception {
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(Long.MAX_VALUE, login, senha)))
         .andExpect(status().isNotFound());
@@ -533,7 +558,7 @@ class ContaAcessoSecurityTest {
       strings = {"ab", "com espaço", "a\tb", "a\nb", "ábc", "\u00a0abc\u00a0", "\tabc", "abc\n"})
   void loginInvalidoRejeitado(String l) throws Exception {
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, l, senha)))
         .andExpect(status().isBadRequest());
@@ -556,12 +581,12 @@ class ContaAcessoSecurityTest {
   void limiteUnicode72BytesSemTruncamento() throws Exception {
     String aceita = "á".repeat(36), rejeita = "á".repeat(37);
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, login, rejeita)))
         .andExpect(status().isBadRequest());
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, login, aceita)))
         .andExpect(status().isCreated());
@@ -573,7 +598,7 @@ class ContaAcessoSecurityTest {
   void unicodeAstralContaCaracteresENaoUnidadesUtf16() throws Exception {
     String s = "😀".repeat(12);
     mvc.perform(
-            post("/api/contas-acesso")
+            post("/api/contas-acesso").with(administrador())
                 .contentType("application/json")
                 .content(payload(pessoaId, login, s)))
         .andExpect(status().isCreated());
@@ -586,7 +611,7 @@ class ContaAcessoSecurityTest {
     String curta = "curta";
     var r =
         mvc.perform(
-                post("/api/contas-acesso")
+                post("/api/contas-acesso").with(administrador())
                     .contentType("application/json")
                     .content(payload(pessoaId, login, curta)))
             .andExpect(status().isBadRequest())
@@ -693,7 +718,7 @@ class ContaAcessoSecurityTest {
   }
 
   @Test
-  void papelAdministradorAindaNaoMudaAutorizacao() throws Exception {
+  void papelAdministradorMantemAcessoCotidiano() throws Exception {
     cadastro();
     jdbc.update(
         "INSERT INTO conta_acesso_perfil SELECT id,'ADMINISTRADOR' FROM conta_acesso WHERE"

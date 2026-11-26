@@ -32,8 +32,8 @@ class OpenApiConcorrenciaTest {
                     .andReturn()
                     .getResponse()
                     .getContentAsString());
-    assertEquals(28, doc.path("paths").size());
-    assertEquals(36, doc.at("/components/schemas").size());
+    assertEquals(30, doc.path("paths").size());
+    assertEquals(39, doc.at("/components/schemas").size());
     assertEquals(10, doc.path("tags").size());
     for (String path :
         List.of(

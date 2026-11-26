@@ -31,7 +31,7 @@ public class ContaAcessoController {
       operationId = "criarContaAcesso",
       summary = "Criar conta OPERADOR",
       description =
-          "Bootstrap público provisório. Pessoa ativa, uma conta por pessoa, login único"
+          "Exige ADMINISTRADOR. Pessoa ativa, uma conta por pessoa, login único"
               + " normalizado. Senha recebe BCrypt; nunca é devolvida. Perfis e status não são"
               + " aceitos como campos do contrato.")
   @ApiResponses({
@@ -57,6 +57,32 @@ public class ContaAcessoController {
       @Valid @RequestBody ContaAcessoRequest request) {
     return ResponseEntity.created(URI.create("/api/contas-acesso/me"))
         .body(service.cadastrar(request.pessoaId(), request.login(), request.senha()));
+  }
+
+  @Operation(summary = "Substituir perfis da conta", description = "Exige ADMINISTRADOR.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Conta atualizada", useReturnTypeSchema = true),
+    @ApiResponse(responseCode = "400", description = "Dados ou operação inválidos",
+        content = @Content(schema = @Schema(implementation = ApiError.class))),
+    @ApiResponse(responseCode = "404", description = "Conta inexistente",
+        content = @Content(schema = @Schema(implementation = ApiError.class)))
+  })
+  @PutMapping("/{id}/perfis")
+  public ContaAcessoResponse alterarPerfis(@PathVariable Long id, @RequestBody PerfisContaRequest request) {
+    return service.alterarPerfis(id, request.valores());
+  }
+
+  @Operation(summary = "Alterar status da conta", description = "Exige ADMINISTRADOR.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Conta atualizada", useReturnTypeSchema = true),
+    @ApiResponse(responseCode = "400", description = "Dados ou operação inválidos",
+        content = @Content(schema = @Schema(implementation = ApiError.class))),
+    @ApiResponse(responseCode = "404", description = "Conta inexistente",
+        content = @Content(schema = @Schema(implementation = ApiError.class)))
+  })
+  @PutMapping("/{id}/status")
+  public ContaAcessoResponse alterarStatus(@PathVariable Long id, @RequestBody StatusContaRequest request) {
+    return service.alterarStatus(id, request.valor());
   }
 
   @Operation(

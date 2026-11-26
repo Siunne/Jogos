@@ -8,6 +8,7 @@ import br.com.emilly.jogos.exception.RecursoNaoEncontradoException;
 import br.com.emilly.jogos.repository.FornecedorRepository;
 import br.com.emilly.jogos.repository.GeneroJogoRepository;
 import br.com.emilly.jogos.repository.JogoRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,6 +123,7 @@ public class JogoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public void excluir(Long id) {
         var jogo = buscarPorId(id);
         jogoRepository.delete(jogo);

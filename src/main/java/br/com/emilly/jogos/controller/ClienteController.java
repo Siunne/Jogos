@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/clientes")
 @Tag(
     name = "Clientes",
-    description = "Operações comerciais de clientes; sem autenticação nesta aula")
+    description = "Operações comerciais de clientes; acesso por perfil")
 public class ClienteController {
   private final ClienteService service;
   private final ClienteMapper mapper;

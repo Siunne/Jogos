@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/vendas")
-@Tag(name = "Vendas", description = "Operações comerciais de vendas; sem autenticação nesta aula")
+@Tag(name = "Vendas", description = "Operações comerciais de vendas; acesso por perfil")
 public class VendaController {
   private final VendaService service;
   private final VendaMapper mapper;

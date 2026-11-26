@@ -10,6 +10,7 @@ import br.com.emilly.jogos.repository.JogoRepository;
 import br.com.emilly.jogos.repository.specification.Filtros;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +72,7 @@ public class GeneroJogoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public void excluir(Long id) {
         var genero = buscarPorId(id);
         if (jogos.existsByGeneroId(id)) {

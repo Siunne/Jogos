@@ -1,0 +1,11 @@
+﻿# Aula 14 — Transferência para Jogos
+
+A loja de jogos tem duas responsabilidades distintas. O operador mantém cadastros, consulta estoque, registra movimentações e conduz vendas. O administrador também realiza essas tarefas e pode cadastrar contas, substituir perfis, bloquear contas e excluir registros. Essa divisão aplica o princípio do menor privilégio porque o trabalho cotidiano não exige acesso à gestão de identidades nem à remoção de dados. O cadastro de Pessoa exige autenticação e continua disponível aos dois perfis, pois é necessário para cadastrar clientes e colaboradores.
+
+Reservamos a remoção de itens de venda e as exclusões de jogos e gêneros ao administrador. Essas operações apagam registros. O cancelamento de uma venda aberta permanece cotidiano porque encerra a tentativa sem baixar estoque e conserva a venda com os itens para consulta. A movimentação de saída reduz um saldo e mantém o cadastro do jogo. A mudança de status da Pessoa ficou administrativa porque a Pessoa inativa impede a autenticação da conta vinculada.
+
+A fronteira HTTP verifica o token e os perfis antes de encaminhar a requisição. O serviço administrativo revalida a autorização por meio do proxy do Spring, o que também protege o caso de uso quando chamado por uma entrada diferente. Um token ausente ou inválido gera 401. Um operador autenticado que tenta gerir contas recebe 403. Um administrador autorizado que tenta bloquear a própria conta recebe 400.
+
+O primeiro administrador é criado por um runner condicionado à configuração externa. O serviço valida os dados e grava Pessoa e ContaAcesso em uma transação, usando a política de senha existente e persistindo o hash BCrypt. A segunda execução encontra o administrador e encerra sem duplicar registros. A autorização consulta a identidade do contexto. Para proteger o último administrador efetivamente ativo, as operações que alteram a disponibilidade compartilham um lock transacional no PostgreSQL, incluindo mudanças no status da Pessoa vinculada.
+
+O JWT guarda os perfis do momento do login. Uma promoção só vale para novos tokens, e um token administrativo anterior à remoção pode continuar operando até expirar. Em Jogos a validade é de trinta minutos. O bloqueio impede novos logins. Isso mantém a aplicação stateless e deixa a revogação antecipada para a etapa correspondente do curso.
