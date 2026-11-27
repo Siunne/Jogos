@@ -3,11 +3,16 @@ package br.com.emilly.jogos.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Entity
 @org.hibernate.annotations.DynamicUpdate
 @Table(name = "conta_acesso")
 public class ContaAcesso {
+  // O custo logarítmico do BCrypt vai de 04 a 31.
+  private static final Pattern HASH_BCRYPT =
+      Pattern.compile("\\{bcrypt}\\$2[aby]\\$(?:0[4-9]|[12][0-9]|3[01])\\$[./A-Za-z0-9]{53}");
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -61,7 +66,7 @@ public class ContaAcesso {
   }
 
   public void alterarSenha(String hash) {
-    if (hash == null || !hash.matches("\\{bcrypt}\\$2[aby]\\$[0-9]{2}\\$[./A-Za-z0-9]{53}"))
+    if (hash == null || !HASH_BCRYPT.matcher(hash).matches())
       throw new IllegalArgumentException("Hash de senha inválido");
     senhaHash = hash;
   }

@@ -114,3 +114,7 @@ A Aula 11 foi publicada em `56ce7361da8f8f384c1f51125254b7a424ec8859`, tag `aula
 O [guia](docs/aula-12-autenticacao.md) apresenta ContaAcesso separada dos papéis comerciais, BCrypt, política UTF-8, migração006 e Spring Security stateless. Consulte [evidências](docs/aula-12-evidencias.md), [matriz](docs/aula-12-auditoria.md), [questões](docs/aula-12-questoes.md), [contrato atual](docs/aula-12-openapi.yaml) e [inventário](docs/aula-12-arquivos.md). A [coleção Aula12](postman/Jogos-Aula12.postman_collection.json) gera credenciais fictícias e autentica os fluxos anteriores.
 
 Implementação somente local, sem staging, commit, push ou tag. Use jogos_test. Cadastro público e HTTP semTLS são simplificações de laboratório, inadequadas para produção.
+
+## Aula 15 — Estratégia de testes e cobertura
+
+O [guia da Aula 15](docs/aula-15-testes-cobertura.md) reúne a estratégia, o inventário, o TDD e as evidências. Para executar apenas os testes de domínio da conta no Windows, use `.\mvnw.cmd "-Dtest=ContaAcessoTest" test`. Com o PostgreSQL de teste apontado para `jogos_test`, execute `.\mvnw.cmd clean verify` para rodar a suíte, gerar `target/site/jacoco/index.html` e aplicar o portão de 70% de linhas e 40% de branches. O guia inclui a reprodução da falha controlada do portão.
